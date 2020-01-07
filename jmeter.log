@@ -1,0 +1,12 @@
+2017/04/06 10:27:46 INFO  - jmeter.util.JMeterUtils: Setting Locale to zh_CN 
+2017/04/06 10:27:47 INFO  - jmeter.JMeter: Loading user properties from: D:\setup\apache-jmeter-3.1\bin\user.properties 
+2017/04/06 10:27:47 INFO  - jmeter.JMeter: Loading system properties from: D:\setup\apache-jmeter-3.1\bin\system.properties 
+2017/04/06 10:27:47 FATAL - jmeter.JMeter: An error occurred:  java.lang.IllegalArgumentException: Unknown arg: E:\personal\接口测试\天气预报GET请求测试.jmx
+	at org.apache.jmeter.JMeter.initializeProperties(JMeter.java:749)
+	at org.apache.jmeter.JMeter.start(JMeter.java:388)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.lang.reflect.Method.invoke(Unknown Source)
+	at org.apache.jmeter.NewDriver.main(NewDriver.java:259)
+

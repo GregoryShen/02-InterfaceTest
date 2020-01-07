@@ -1,0 +1,157 @@
+5-2 unittest和requsts重构封装
+
+1) 讲了在python中创建包的方法
+
+    创建base, case, util 包，
+
+2） 拿进来之后，把RunMain实例化
+
+3）
+
+--------------------------------------
+5-3 assert的使用
+
+1）print(type(res))  jieg
+
+---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+---------------------------------------
+7-6 封装获取常量的方法
+
+当去做接口测试自动化的时候，首先要拿到行数，接着要去拿到url，请求方式，header，依赖数据，请求数据和预期结果这些字段，一一拿到这些数据后，才能根据
+一些逻辑判断把这些数据组合在一起，然后才能执行case
+
+即使现在有了拿某个单元格的方法，但是并不知道拿哪个单元格
+
+列是固定好的，所以要有地方存放这些常量，就是excel存放数据的顺序，存放以后
+可以根据常量拿到单元格的数据，把列拿到，再拿到行数，去循环每一行的时候，
+再根据行号和列对应的方法才能够拿到对应的数据，然后才能进行最后的拼接
+
+那就应该创建一个地方来存放那些常量
+
+然后创建了一个data包，然后创建data_config.py 存放常量
+
+把类弄成变量的形式，然后去调用它
+
+class global_var:
+    # case_id
+    Id = '0'
+    url = '1'
+    run = '2'
+    request_way = '3'
+    header = '4'
+    case_depend = '5'
+    data_depend = '6'
+    field_depend = '7'
+    data = '8'
+    expect = '9'
+    result = '10'
+
+
+# 获取case_id
+def get_id():
+    return global_var.id
+
+# 获取url
+def get_url():
+    return global_var.url
+
+# 是否运行
+def get_run():
+    return global_var.run
+
+def get_run_way():
+    return global_var.request.way
+
+def get_header():
+    return global_var.header
+
+------------------------------------------
+7-7 封装获取接口数据
+
+应该要有一个获取excel数据的地方，根据数据的不同返回不同的东西
+
+创建get_data.py
+
+第一步，需要操作excel，所以引入操作excel的包，
+from util.operation_excel import OperationExcel
+
+还要拿到列号，所以要引入
+import data_config
+
+class GetData:
+
+    def __init__(self):
+        self.opera_excel = OperationExcel()
+
+    # 首先需要知道有多少行,就是case个数
+    def get_case_lines(self):
+        return self.opera_excel.get_lines()
+
+    #获取是否执行
+    def get_is_run(self,row):
+        flag = None
+        col = data_config.get_run()
+        run_model = self.opera_excel.get_cell_value(row, col)
+        if run_model == 'yes':
+            flag = True
+        else:
+            flag = False
+        return flag
+
+    #是否携带header
+    def is_header(self, row):
+        col = data_config.get_header()
+        header = self.opera_excel.get_cell_value(row, col)
+        if header == 'yes':
+            return data_config.get_header_value()
+        else:
+            return None
+
+~~~~~~
+在data.config.py下再添加一个获取header值的方法：
+def get_header_value():
+    header = {
+    "header": "1234",
+    "cookie": "asdasdf"}
+
+
+    #获取请求方式
+    def get_request_method(self, row):
+        col = data_config.get_run_way()
+        request_method = self.opera_excel.get_cell_value(row, col)
+        return request_method
+
+    #获取url
+    def get_request_url(self, row):
+        col = data_config.get_url()
+        url = self.opera_excel.get_cell_value(row, col)
+        return url
+
+    #获取请求数据
+    def get_request_data(self, row):
+        col = data_config.get_data()
+        data = self.opera_excel.get_cell_value(row, col)
+        if data == '':
+            return None
+        return data
+
+#这个时候获取到的请求数据不是真正的请求数据，真正的请求数据在json
+文件里
+
+from util.operation_json import OperationJson
+
+    #通过获取关键字拿到data数据
+    def get_data_for_json(self, )
+        opera_json = OperationJson()
+        request_data = opera_json.get_data(self.get_request_data(row))
+        return request_data
+
+    #获取预期结果
+    def get_expect_data(self, row):
+        col = data_config.get_expect()
+        expect = self.opera_excel.get_cell_value(row, col)
+        if expect == '':
+            return None
+        return expect
