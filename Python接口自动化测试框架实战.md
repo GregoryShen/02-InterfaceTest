@@ -1,6 +1,79 @@
+## 第6章 mock服务入门到实战
+
+### 6-1 如何在接口开发阶段编写接口测试脚本
+
+### 6-2 mock服务介绍以及实现原理
+
+### 6-3 在case中通过底层函数实现mock
+
+把这个结果模拟返回出来,因为我们现在是没有接口的,那么我们只能通过模拟返回数据,那么如何用`mock`来实现?
+
+首先倒入mock: `import mock`
+
+```python
+res = self.run.run_main(url, 'POST', data)
+```
+
+既然是调用的`run_main`方法,就要模拟这个方法, 那也就是模拟 `self.run.run_main(url, ‘POST’, data)`的值
+
+那怎样去模拟呢?
+
+```python
+mock_data = mock.Mock(return_value=data)  # 把请求值的data作为返回值赋给return_value
+```
+
+`mock_data`是一个方法, 打印一下试试看 
+
+```python
+print(mock_data)
+# 结果是
+<Mock id='111111111'>
+```
+
+如果需要用`mock_data`那就需要让`mock_data`等于`self.run.run_main`
+
+```python
+self.run.run_main = mock_data
+res = self.run.run_main(url, 'POST', data)
+```
+
+这个时候调用`run_main`就相当于调用`mock_data`了, 由于前面已经规定了`mock_data`的返回值是`data`, 所以`res`的值应该也是`data`
+
+然后后续可以维持不变,继续用`errorcode`字段来判断(因为data里也有`errorcode`)
+
+```python
+self.assertEqual(res['errorcode'], 1001, "测试失败")
+print("这是第一个case")
+```
+
+但是这样比较low, 需要重构封装
+
+### 6-4 重构封装mock服务
+
+```python
+import mock
+# 模拟mock封装
+def mock_test(mock_method,url,method,request_data,response_data):
+    mock_method = mock.Mock(return_value=response_data)
+    res = mock_method(url,method,request_data)
+    return res
+```
+
+然后直接调用
+
+```python
+from mock_demo import mock_test
+# 然后把那几句改写成
+res = mock_test(self.run.run_main, url, 'POST', data, data)
+```
+
+
+
+
+
 ## 第7章 从接口自动化框架设计到开发
 
-###7-1 如何设计一个接口自动化框架
+### 7-1 如何设计一个接口自动化框架
 
 ----
 
