@@ -684,6 +684,238 @@ sys.path.append("E:/www/ImoocInterface")
 
 ----
 
+我们需要把预期结果和实际结果进行一个对比,在预期结果栏是一个字符串,实际结果也是一个字符串,那也就是说要判断这个case有没有执行通过我就需要拿预期结果栏里的值和返回的实际结果值进行一个对比.
+
+我肯定不可能知道这个接口的所有数据,或者我也不可能把它都写下来,我是不是可以拿接口返回的值里面的某一个数据作为预期结果,然后以这个数据在实际返回的结果里进行查找,如果查到找就认为这条case是通过的.
+
+我现在需要有一个地方来比较预期结果里的字符串是否在返回的结果里面.可以创建一个方法,这个方法就是比较字符串的->在util包下创建`common_util.py`(通用的方法)
+
+```python
+class CommonUtil:
+  
+  	def is_contain(self,str_one, str_two):
+      	'''
+      	判断一个字符串是否在另外一个字符串中
+      	str_one: 查找的字符串
+      	str_two: 被查找的字符串
+      	'''
+        if str_one in str_two:
+            return True
+        else:
+            return False
+```
+
+这样写太low了,改写成:
+
+```python
+class CommonUtil:
+  
+  	def is_contain(self,str_one, str_two):
+      	'''
+      	判断一个字符串是否在另外一个字符串中
+      	str_one: 查找的字符串
+      	str_two: 被查找的字符串
+      	'''
+        flag = None
+        if str_one in str_two:
+            flag = True
+        else:
+            flag = False
+        return flag
+```
+
+然后在主程序里面(`main/run_test.py`)需要把预期结果栏的值拿到,就要用到:
+
+之前操作Excel的方法-> `util/operation_excel.py`里的`get_cell_value()`;
+
+调取某个单元格的内容.就要用到:
+
+`data/get_data.py`里的`get_expect_data()`获取预期结果
+
+> `get_expect_data()`方法的具体内容
+>
+> ```python
+> def get_expect_data(self, row):
+>     col = int(data_config.get_expect())
+>     expect = self.opera_excel.get_cell_value(row, col)
+>     if expect == '':
+>         return None
+>     return expect
+> ```
+
+只需要通过`dataconfig`拿到预期结果是哪一列的,然后就可以拿到expect的值,然后调用.
+
+然后把预期结果值加进`main/run_test.py`里`class Runtest`的`go_on_run()`方法里:
+
+```python
+expect = self.data.get_expect_data(i)
+```
+
+这样就拿到预期结果值了.
+
+然后在`main/run_test.py`里引入比较两个字符串的方法:
+
+```python
+from util.common_util import CommonUtil
+```
+
+然后在`RunTest`的构造函数里实例化一下:
+
+```python
+class RunTest:
+  
+  	def __init__(self):
+        self.run_method = RunMethod()
+        self.data = GetData()
+        self.com_util = CommonUtil()
+```
+
+然后`go_on_run`就变成了:
+
+```python
+def go_on_run(self):
+    res = None
+    rows_count = self.data.get_case_lines()
+    for i in range(1, rows_count):
+        url = self.data.get_request_url(i)
+        method = self.data.get_request_method(i)
+        is_run = self.data.get_is_run(i)
+        data = self.data.get_data_for_json(i)
+        expect = self.data.get_expect_data(i)
+        header = self.data.is_header(i)
+        if is_run:
+            res = self.run_method.run_main(method, url, data, header)
+            if self.com_utl.is_contain(expect, res):
+                print('测试通过')
+            else:
+              	print('测试失败')  
+```
+
+
+
+### 7-13 将测试结果写入到Excel中
+
+前面我们讲到了我们把实际结果和预期结果进行了对比,来判断它是否通过.通过了之后要告诉Excel应该把实际结果写进去,那如何去写这个实际结果呢?
+
+首先还是需要在操作Excel的类(`util/operation_excel.py`).现在Excel所有的都是去获取值,没有写入值的,通过百度查询到具体方法.
+
+在`OperationExcel`类下增加方法:
+
+```python
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+```
+
+这时候存在一个问题,如果使用`xlwt`这个包去写,以写的方式打开的时候,之前的内容就会被清空,所以还是用`xlrd`,首先还是打开Excel(现在还是read模式):
+
+```python
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+        read = xlrd.open_workbook(self.filename)
+```
+
+拿到Excel以后,把Excel复制一下.(这里需要用到第三方包`xlutils`),从最最一开始倒入复制的方法:
+
+```python
+from xlutils.copy import copy
+
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+        read_data = xlrd.open_workbook(self.filename)
+        write_data = copy(read_data)
+```
+
+把原来读出来的Excel数据利用`copy`方法复制一份为`write_data`.现在就有两份同样的数据了.这时候在wirte上操作是不会影响到原有数据的.
+
+然后通过index把第一个sheet的数据拿到:
+
+```python
+from xlutils.copy import copy
+
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+        read_data = xlrd.open_workbook(self.filename)
+        write_data = copy(read_data)
+        sheet_data = write_data.get_sheet(0)
+```
+
+然后就可以在这个sheet上进行写入操作了:
+
+```python
+from xlutils.copy import copy
+
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+        read_data = xlrd.open_workbook(self.filename)
+        write_data = copy(read_data)
+        sheet_data = write_data.get_sheet(0)
+        sheet_data.write(row,col,value)
+```
+
+这时候写入的数据还在内存里面.然后再把这个Excel保存一下:
+
+```python
+from xlutils.copy import copy
+
+class OperationExcel:
+  	...
+    
+    # 写入数据
+    def write_value(self, row, col, value):
+      	'''
+      	写入Excel数据
+      	row, col, value
+      	'''
+        read_data = xlrd.open_workbook(self.file_name)
+        write_data = copy(read_data)
+        sheet_data = write_data.get_sheet(0)
+        sheet_data.write(row,col,value)
+        write_data.save(self.file_name)
+```
+
+然后在`main/run_test.py`的`go_on_run`方法中直接调用就可以了—>替换原有`print(“测试通过”)`部分
+
+刚刚创建的方法需要传row, col, value, 列是在`data_config.py`里的,所以要在`data/get_data.py`下再封装一个写入数据的方法:
+
+```python
+def write_result(self,row,value):
+    col = int(data_config.get_result())
+    self.opera_excel.write_value(row,col,value)
+```
+
+然后回到`main/run_test.py`的`go_on_run`方法:
+
+```python
+def go_on_run(self):
+    res = None
+    rows_count = self.data.get_case_lines()
+    for i in range(1, rows_count):
+        ...
+        if is_run:
+            res = self.run_method.run_main(method, url, data, header)
+            if self.com_utl.is_contain(expect, res):
+                self.data.write_result(i, 'pass')
+            else:
+              	self.data.write_result(i, 'fail')
+```
+
+再次运行程序,结束以后打开`dataconfig`文件夹下的`case.xls`.证明写入成功
+
 
 
 
@@ -691,4 +923,18 @@ sys.path.append("E:/www/ImoocInterface")
 ## 第9章 获取cookie及请求处理
 
 ### 9-3 如何拿到cookie去写入文件
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
