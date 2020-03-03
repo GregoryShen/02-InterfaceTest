@@ -580,33 +580,117 @@ def get_expect_data(self, row):
 
 ----
 
-在base里面，重新创建一个`runmethod.py`
+前面我们已经讲了,如何去把Excel里面的这些数据去拿到.回过头来思考一下,现在我们已经有了把Excel的操作进行封装,然后如何(根据请求数据中的关键字)去把它的数据拿出来也弄了,按照正常思想,我们现在是不是要干一件事?因为我们现在是要数据能拿到数据,要操作有操作,这个时候可以直接按照思想的来,拿到数据之后直接去做接口测试,有<u>*URL*</u>,有<u>*是否执行*</u>,有<u>*请求方式*</u>,有<u>*header*</u>,然后直接拿到它的<u>*请求数据*</u>,直接拼接起来,post或get一下就可以了.
+
+我们本堂课程就来讲如何去把这些东西做一个最基础的封装.要封装哪些东西呢,首先我们来思考一下:我们现在有了`get_data.py`中`GetData`下的这些东西(获取是否执行等),那么在我们的base里面,我们是不是应该有个东西,这个东西就像我们之前讲的(发送get/post请求,还有一个`run_main`方法来跑两个),把(`send_post`,`send_get`,`run_main`)这些东西封装起来,只是说当时封装的是一个demo,其实这个demo也是完成了80%以上的.我们这节课就是在它的基础上进行一个完善.
+
+首先在base里面，重新创建一个`runmethod.py`
+
+在这个里面我们要用到`requests`,所以`import requests`,然后需要创建一个类`class RunMethod`,当创建完这个class之后,还是按照之前的思想,我们给它创建三个方法,一个是执行post接口的方法,一个是get的,一个是主的.先把框架搭建起来:
 
 ```python
 import requests
 class RunMethod:
     def post_main(self,url,data,header):
         pass
+
     def get_main(self,url,data,header):
         pass
-    
-    def run_main(self,method,url,data,header):
+  
+    def run_main(self,method,url,data,header):  # run_main比前两个方法多了一个method参数,这样的话主函数只要传是get还是post,再加上url,data和header,传进来就可以了
         pass
 ```
 
-首先来完善第一个方法，先完善参数，url肯定不为空，data肯定不为空，header可能为空，所以header设为默认参数None
+首先来完善第一个方法,先完善参数,url,data,header传进去,我们之前说过,url肯定不为空，data肯定不为空，header有可能为空(所以在函数体内可以对它做一个判断)，所以header传进来首先就是一个`None`,如果说你没有的话就给你弄成一个`None`,.这个时候我们可以按照之前的那个判断header是否为空,然后去执行它的接口:
 
 ```python
-def post_main(self,url,data,header=None):
-    res = None
-    if header != None:
-    	res = requests.post(url=url,data=data,headers=header).json()
-    else:
-        res = requests.post(url=url,data=data).json()
-    return res
+import requests
 
+class RunMethod:
+  
+  	def post_main(self,url,data,header=None):
+      	requests.post(url=url, data=data, headers=header)
+```
+
+这个时候我们可以思考一下我们什么情况下来完成这些: 这时候可以加一个判断:如果说header不等于空,我就知道你现在需要发送的是要有headers的这个参数;不然的话,你就应该发送不带headers的那个参数.这是和之前课程的一个区别:
+
+```python
+import requests
+
+class RunMethod:
+  
+  	def post_main(self,url,data,header=None):
+      	if header != None:
+          	requests.post(url=url, data=data, headers=header)
+        else:
+          	requests.post(url=url, data=data)
+```
+
+这个时候,首先,要把结果返回出去,那么结果最一开始等于None,如果说有结果,它肯定会有结果,如果程序出错或接口出错就没结果了
+
+```python
+import requests
+
+class RunMethod:
+  
+  	def post_main(self,url,data,header=None):
+      	res = None
+        if header != None:
+          	res = requests.post(url=url, data=data, headers=header)
+        else:
+          	res = requests.post(url=url, data=data)
+        return res
+```
+
+这样就可以把结果返回出去了.
+
+但是一般情况下,我们需要把这个结果(指res)弄出来,现在我们的接口,结果它还是没有的,我们测试的接口一般情况下是json的,所以把结果处理一下(指添加`.json()`),现在结果就有了,它是一个以json为格式的结果:
+
+```python
+import requests
+
+class RunMethod:
+  
+  	def post_main(self,url,data,header=None):
+    		res = None
+    		if header != None:
+    				res = requests.post(url=url,data=data,headers=header).json()
+    		else:
+        		res = requests.post(url=url,data=data).json()
+    		return res
+```
+
+这时候我还是需要把结果好好处理一下,因为我们的结果看起来可能并不是太友善.但是现在先不处理,因为光说很空洞,只有到后面我们把Excel数据拿来结合之后大家才会知道为什么要处理.
+
+下面的`get_main`其实和上面是一样的,直接把`post_main`的内容copy下来,把post改成get,它的结果就一样了.这里我给大家挖了一个坑,至于这个坑能不能填平,我也不知道,但是我们后面会去做.
+
+```python
+import requests
+
+class RunMethod:
+  
+  	def post_main(self,url,data,header=None):
+        res = None
+        if header != None:
+            res = requests.post(url=url, data=data, headers=header).json()
+        else:
+          	res = requests.get(url=url, data=data).json()
+        return res
+      
+		def get_main(self, url, data, header=None):
+      	res = None
+        if header != None:
+          	res = requests.get(url=url, data=data, headers=header).json()
+        else:
+          	res = requests.get(url=url, data=data).json()
+        return res
+```
+
+下面,`run_main`的参数,同样的,method肯定不能为空,url不能为空,get的时候data是可以为空的,因为它有可能就只有一个URL,所以改写`run_main`中的参数`data=None`,header也可以为空.这时候我就需要去判断了,就判断你这个`method`是get还是post.如果说method等于post,我就去执行`post_main`,我只需要把它的url,data,header传进去就可以了.else之后就是`self.get_main()`,同样的把`url`,`data`,`header`传进去.这个时候我们调用`self.post_main`/`get_main`的时候它会返回一个值,这个时候同样的可以把这个值记录在这里(初始设为None的模式),然后把这个值返回出去(`return res`)
+
+```python
 # get_main和post_main 一样
-def get_main(self,url,data=None,header=None):
+def get_main(self,url,data=None,header=None):   # 但这里要注意,data是后面改的,是从run_main中反应出data可以为空后后补的默认值为空
     res = None
     if header != None:
     	res = requests.get(url=url,data=data,headers=header).json()
@@ -623,11 +707,35 @@ def run_main(self,method,url,data=None,header=None):
     return res    
 ```
 
+到目前为止这个方法就完事了,现在剩下的事就是把找一个地方去调用`run_main`,然后把数据传进去,然后就去执行,就是在整个的主流程控制里面去执行.接下来我们就应该是把主流程结合起来了.
+
 ### 7-9 主流程封装及错误调试
 
 ----
 
-再创建一个`main`的包
+前面讲到了我们把发送接口的方法封装了起来,而且把它放在了一个类里面,然后通过`run_main`主函数去调用.这时候我们只需要在流程里面根据一些条件去调用它就行了. 
+
+我们怎么去执行主流程呢.首先还是要来思考一下主流程需要干哪些事情?现在我们已经有了Excel(Excel里面已经把接口地址、是否执行、请求方式、是否携带header和请求数据等都封装好了),而且数据也已经准备好了(在`/dataconfig/login.json`)
+
+我们这节课来讲主流程入口的封装,首先我们要知道的是:我们已经有了`run_main`这个方法,然后有了json数据,还有Excel,
+
+再创建一个`main`的包,就是一个主要的程序的入口,在包里面创建一个`run_test.py`.首先,
+
+我们要调用base下面的`runmethod.py`,所以要先导入,然后把RunMethod进行实例化
+
+```python
+
+```
+
+我们也需要把拿进去
+
+```python
+from base.runmethod
+```
+
+剩下的
+
+首先要知道这个case执行多少行,我们需要干的一件事
 
 ```python
 from base.runmethod import RunMethod
@@ -797,7 +905,7 @@ def go_on_run(self):
 
 前面我们讲到了我们把实际结果和预期结果进行了对比,来判断它是否通过.通过了之后要告诉Excel应该把实际结果写进去,那如何去写这个实际结果呢?
 
-首先还是需要在操作Excel的类(`util/operation_excel.py`).现在Excel所有的都是去获取值,没有写入值的,通过百度查询到具体方法.
+首先还是需要在操作Excel的类(`util/operation_excel.py`).因为这个Excel现在所有的都是去获取值,没有写入值的,我们应该怎么去写它的 值呢?通过百度查询到具体方法.
 
 在`OperationExcel`类下增加方法:
 
@@ -820,7 +928,7 @@ class OperationExcel:
         read = xlrd.open_workbook(self.filename)
 ```
 
-拿到Excel以后,把Excel复制一下.(这里需要用到第三方包`xlutils`),从最最一开始倒入复制的方法:
+拿到Excel以后,把Excel复制一下(这里需要用到第三方包`xlutils`),从最一开始导入复制的方法:
 
 ```python
 from xlutils.copy import copy
@@ -836,7 +944,7 @@ class OperationExcel:
 
 把原来读出来的Excel数据利用`copy`方法复制一份为`write_data`.现在就有两份同样的数据了.这时候在wirte上操作是不会影响到原有数据的.
 
-然后通过index把第一个sheet的数据拿到:
+我现在拿到的是整个的Excel(指`write_data`),然后通过`index`把第一个sheet的数据拿到:
 
 ```python
 from xlutils.copy import copy
@@ -867,7 +975,7 @@ class OperationExcel:
         sheet_data.write(row,col,value)
 ```
 
-这时候写入的数据还在内存里面.然后再把这个Excel保存一下:
+这时候写入的数据还在内存里面,写完然后再把这个Excel保存一下:
 
 ```python
 from xlutils.copy import copy
@@ -909,12 +1017,126 @@ def go_on_run(self):
         if is_run:
             res = self.run_method.run_main(method, url, data, header)
             if self.com_utl.is_contain(expect, res):
-                self.data.write_result(i, 'pass')
+                self.data.write_result(i, 'pass')   # 这里只需要传行号和结果
             else:
               	self.data.write_result(i, 'fail')
 ```
 
 再次运行程序,结束以后打开`dataconfig`文件夹下的`case.xls`.证明写入成功
+
+### 7-14 数据依赖问题从设计思路开始
+
+前面的课程已经把接口自动化的大概模型弄出来了,而且我们也能够根据这个case它是否运行把它的case执行掉,然后把它的实际结果写到实际结果栏.按照这样的思路,我们整个的case、录入的接口是能够都运行完成的.按照正常道理来说这样思考是不是没有问题了.
+
+给大家举一个简单的例子,打开慕课网,下了一个订单,然后点「立即支付」(然后跳转到订单详情页面,包括支付方式、订单金额和优惠券抵扣,页面最下有「立即支付」字样),来看一下订单支付的这个接口,点击「立即支付」调用的是`/api/pay/pay`这个接口,这个接口需要传递的参数有:
+
+```python
+{
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"trade_number": "1711012046395438",
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"pay_way": "1"
+}
+```
+
+ 它有一个订单号(`trade_number`),剩下的就是一些加密的东西(`secrect`, `token`, `pay_way`等).我们可以思考下,在购物流程里面,我这个订单肯定是要依赖于我下这个单,我要买这个课程(点「立即购买」),然后在跳转的页面上「提交订单」,提交完订单(调用的是`/api/pay/submitorder`接口,会传一个`goods_ids`)之后,它会给我生成一个订单号(`out_trade_no`),这个订单号要用于支付(`/api/pay/pay`)的接口.
+
+也就是说我要测试`/api/pay/pay`这个接口,必须先执行`/api/pay/submitorder`拿到它的订单号`out_trade_no`,拿到订单号之后把`/api/pay/pay`的`trade_number`字段填成`out_trade_no`的数据,然后再执行测试,它才能够返回数据.如果随便填一个`trade_number`,就会报错(比如“没有这个订单”之类的),这样就没办法验证数据了.如果只是想像之前那样验证状态就没问题.像这种情况我们应该怎样去解决呢?
+
+打开Excel,新增三列:case依赖,依赖的返回数据,数据依赖字段
+
+**case依赖:**假如说要执行Imooc-12(以`/api/pay/pay`为例), 要先执行Imooc-11,也就是说Imooc-12依赖于Imooc-11,所以就在Imooc-12点case依赖列里填入第11个case的case_id:Imooc-11
+
+**依赖的返回数据**:执行了Imooc-11之后,要拿回`out_trade_no`这个字段的值,所以在**依赖的返回数据**栏填入该字段的名称
+
+**数据依赖字段**:拿到之后用于mooc-12(`/api/pay/pay`)这个接口的`trade_number`字段,<u>*依赖的返回数据*</u>的字段名和*<u>数据依赖字段</u>*的字段名称有可能是不一样的,这里慕课网就是不一样的
+
+先拿依赖的`case_id`,依赖返回数据字段是哪一个(就填入<u>*依赖的返回数据*</u>栏),请求数据字段是哪一个(就填入<u>*数据依赖字段*</u>栏),依次填写.
+
+再操作一个流程:
+
+​	  按照之前的设计,我们只需要找到它上一个接口返回的字段就可以了,当有多个重名的接口字段时,<u>*依赖的返回数据*</u>(上一个例子是`out_trade_no`)就需要改写为`data:[1]:name`.就是定义一个规则,如果你要这样去取数据,你是哪一层的,第几个值,如果没有这个的话就默认获取`data:name`.这样我们就不用考虑依赖字段是怎样解决的
+
+现在如果说有哪个case它依赖于哪一条数据,我们只需要把它依赖的case拿到,然后把<u>*依赖的返回数据*</u>拿回来, 然后更新到待测接口的<u>*数据依赖字段*</u>就可以了.
+
+再次把请求数据以及整个的URL拼接数据,然后就可以了:
+
+以上面的`/api/pay/submitorder`和`/api/pay/pay`接口为例:
+
+正常的两个接口的返回/请求数据如下:
+
+```python
+# submitorder 接口的返回数据
+response_data = {
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"goods_ids": "357",
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"coupon_id": "0"
+}
+
+# pay 接口的请求数据
+request_data = {
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"trade_number": "1711012046395438",
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"pay_way": "1"
+}
+```
+
+这时候request_data就需要变为:
+
+```python
+request_data = {
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"trade_number": num,
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"pay_way": "1"
+}
+```
+
+`trade_number`字段就变为`num`,为一个变量,指的是`response_data`接口的某一个值,也就是在`data_config`里
+
+```python
+# submitorder 接口的返回数据
+response_data = {
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"goods_ids": "357",
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"coupon_id": "0"
+}
+
+num = response_data["goods_ids"]
+
+# pay 接口的请求数据
+request_data = {
+  	"timestamp" : "1509540501557",
+  	"uid": "5249191",
+  	"trade_number": "1711012046395438",
+  	"secret": "32c11c011bd5db6635b79153d96cb55d",
+  	"from": "2",
+  	"token": "921e73771e5b2295b42872f14f0b1fc3",
+  	"pay_way": "1"
+}
+```
+
+这样的话请求数据(指`request_data`)就和之前请求数据列里的数据格式一样了.
+
+### 7-15 数据依赖问题方法封装之通过case_id获取case数据
 
 
 
@@ -923,6 +1145,14 @@ def go_on_run(self):
 ## 第9章 获取cookie及请求处理
 
 ### 9-3 如何拿到cookie去写入文件
+
+
+
+3. 50:04
+4. 43:27
+5. 35:18
+
+
 
 
 
