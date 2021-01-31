@@ -1,4 +1,20 @@
-﻿16.07 接口测试的测试理论
+﻿14.9 requests 中的会话
+
+1. cookie和session的定义？以及他们的区别
+
+
+2. 如果响应中含有cookies，如何读取？给出示例代码
+3. 如果想在请求中添加cookies，如何操作？ url=http://httpbin.org/cookies
+4. 如何把RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
+5. 如何在requests中使用会话？给出示例代码？ 也就是如何证明session的功能？
+   就是可以在不同请求中确认服务器记住了我们的cookie
+
+
+
+
+
+
+16.07 接口测试的测试理论
 
 1. 什么情况下需要考虑使用接口测试？
 1）要快速验证功能的正确性并且需要反复迭代
