@@ -1,4 +1,8 @@
-﻿14.9 requests 中的会话
+﻿
+
+
+
+14.9 requests 中的会话
 
 1. cookie和session的定义？以及他们的区别
 2. 如果响应中含有cookies，如何读取？给出示例代码
@@ -6,6 +10,9 @@
 4. 如何把RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
 5. 如何在requests中使用会话？给出示例代码？ 也就是如何证明session的功能？
    就是可以在不同请求中确认服务器记住了我们的cookie
+   设置cookie：http://httpbin.org/cookies/set/{name}/{value} (GET 请求)
+   查看当前请求携带的cookie：http://httpbin.org/cookies (GET 请求)
+
 
 
 16.07 接口测试的测试理论
@@ -32,3 +39,6 @@
 16.30 项目开始前的准备
 1. 解释master、release、integration、dev、hotfix、teach分支的含义
 2. 本项目作为开源项目的管理模式
+
+16.35 代码的下载和提交
+1.
