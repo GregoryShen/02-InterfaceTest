@@ -17,16 +17,20 @@
 
 16.07 接口测试的测试理论
 
-1. 什么情况下需要考虑使用接口测试？
-2. 在快速迭代开发的项目过程中如何落地接口测试？
-3. 什么情况下不用做接口测试？
-4. 接口测试的策略？ 具体的两类策略细节？
-5. 判断一个问题是不是bug的依据有哪些?
-6. 判断一个迭代的测试有没有通过的依据?
-7. 接口测试设计测试用例的原则?
-8. 接口测试的测试用例设计依据?
-9. 设计接口测试用例的一般步骤?
-10. 接口测试特有的测试场景?
+01. 软件测试的基本问题有哪些?
+
+01. 什么情况下需要考虑使用接口测试？
+02. 在快速迭代开发的项目过程中如何落地接口测试？
+03. 什么情况下不用做接口测试？
+04. 接口测试的策略？ 具体的两类策略细节？
+05. 判断一个问题是不是bug的依据有哪些?
+06. 判断一个迭代的测试有没有通过的依据?
+07. 如何对这个系统进行穷尽的测试?
+08. 不能做穷尽的测试, 那么要测多少才够?
+09. 接口测试测试用例的设计原则?
+10. 接口测试测试用例的设计依据?
+11. 设计接口测试用例的一般步骤?
+12. 接口测试特有的测试场景?
 
 16.10 接口测试框架设计
 1. 描述一个自动化测试框架在单机上运行时的过程，并画图表示
@@ -42,3 +46,46 @@
 
 16.35 代码的下载和提交
 1.
+
+16.40 Rest请求客户端
+1. 实现本项目中的 Rest 请求客户端
+2. 说明 RestClient 类里出现的各种 HTTP 方法的含义和区别
+3. 写一段脚本, 使用 RestClient 向 github.com 的首页发送 get 请求
+
+16.50 通过接口登录Github
+
+
+16.60 封装一个 Get 请求
+1. 封装一个请求: 接口地址: https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+2. 按照文档设计更多的输入参数, 对这个接口做测试, 尽可能多的覆盖各种输入组合以及正常和异常场景
+
+16.70 进一步思考 Get 请求的封装请求的封装
+1. 这个项目中基础封装的原则
+2. 按照基础封装的原则封装两个接口, 并调用它
+文档地址: https://docs.github.com/en/rest/reference/repos#list-organization-repositories
+https://docs.github.com/en/rest/reference/repos#list-public-repositories
+
+16.80 封装更多类型的请求
+1. 封装 repositories 中的其他接口
+创建:https://docs获取:https://docs.github.com/en/rest/reference/repos#get-a-repository
+编辑:https://docs.github.com/en/rest/reference/repos#update-a-repository
+.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+2. 调用这些接口验证功能
+
+16.90 在项目实战中提交代码
+
+
+16.100 TUGithubAPI 项目的介绍的补充
+1. 给你一个网站接口项目要你测, 你怎么测?
+2. 你的框架怎么设计, 有哪些模块?
+3. 介绍一下你以前做过的项目里是怎么做这些模块的?
+
+16.110 接口封装层设计的改进
+1. 使用list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。注：只需要修改reponame和username即可。并把token改成可用的token。
+
+16.120 关键字层的封装
+1. 封装关键字创建repo
+2. 关键字的参数扩展
+3. 关键字的结果返回
+4. 关键字的调用和断言
+
