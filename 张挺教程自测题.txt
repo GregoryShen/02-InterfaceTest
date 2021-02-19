@@ -53,6 +53,9 @@
 3. 写一段脚本, 使用 RestClient 向 github.com 的首页发送 get 请求
 
 16.50 通过接口登录Github
+1. 在 rest_client 中添加登录方式信息
+2. 封装查看所有repos的接口，接口地址：https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+3. 调用2中的接口查看结果
 
 
 16.60 封装一个 Get 请求
@@ -67,9 +70,9 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 
 16.80 封装更多类型的请求
 1. 封装 repositories 中的其他接口
-创建:https://docs获取:https://docs.github.com/en/rest/reference/repos#get-a-repository
-编辑:https://docs.github.com/en/rest/reference/repos#update-a-repository
-.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+创建: https://docs.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+获取: https://docs.github.com/en/rest/reference/repos#get-a-repository
+编辑: https://docs.github.com/en/rest/reference/repos#update-a-repository
 2. 调用这些接口验证功能
 
 16.90 在项目实战中提交代码
