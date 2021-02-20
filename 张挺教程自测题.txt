@@ -57,14 +57,15 @@
 2. 封装查看所有repos的接口，接口地址：https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
 3. 调用2中的接口查看结果
 
-
 16.60 封装一个 Get 请求
-1. 封装一个请求: 接口地址: https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+1. 封装一个接口: 接口地址: https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+   封装要求：将参数封装在接口地址里，然后对这个接口进行单个参数的测试
 2. 按照文档设计更多的输入参数, 对这个接口做测试, 尽可能多的覆盖各种输入组合以及正常和异常场景
 
 16.70 进一步思考 Get 请求的封装请求的封装
-1. 这个项目中基础封装的原则
-2. 按照基础封装的原则封装两个接口, 并调用它
+1. 说明16.6 中的接口封装方式有什么问题，并改为通用的格式并调用
+2. 这个项目中基础封装的原则
+3. 按照基础封装的原则封装两个接口, 并调用它
 文档地址: https://docs.github.com/en/rest/reference/repos#list-organization-repositories
 https://docs.github.com/en/rest/reference/repos#list-public-repositories
 
