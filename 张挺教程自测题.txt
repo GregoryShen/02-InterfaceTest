@@ -85,7 +85,9 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 3. 介绍一下你以前做过的项目里是怎么做这些模块的?
 
 16.110 接口封装层设计的改进
-1. 使用list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。注：只需要修改reponame和username即可。并把token改成可用的token。
+1. 重写repos和github类，并封装repositories下的traffic接口 
+   https://docs.github.com/en/rest/reference/repos#get-repository-clones
+2. 调用traffic下的list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。
 
 16.120 关键字层的封装
 1. 封装关键字创建repo
