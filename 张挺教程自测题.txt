@@ -1,3 +1,8 @@
+14.20 网络协议
+1. 
+
+
+
 14.30 网络分层和数据
 1. 为什么网络是要分层的?
 2. 网络分层方法有哪些?
@@ -133,11 +138,17 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 16.150 通过 fixture 做测试环境的切换
 
 
+16.160 给环境切换加上参数化
+
+
 
 16.170 响应结果的预处理
 1. 改造 restclient 在其中加入对响应结果预处理的代码
 2. 用改造后的 restclient 重新书写测试用例, 测试用例为 test_list_all_public_repos
 3. 做预处理可以完全避免因exception而退出测试吗, 为什么?
+
+
+16.180 针对场景的测试
 
 
 16.190 如何在实际项目中应用测试框架
