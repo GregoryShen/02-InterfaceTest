@@ -1,4 +1,4 @@
-﻿14.9 requests 中的会话
+﻿14.90 requests 中的会话
 
 1. cookie和session的定义？以及他们的区别
 cookie 是 Web 服务器保存在用户浏览器上的小文本文件, 它可以包含用户的信息, 比如用户名、加密后的密码等信息.
@@ -125,3 +125,48 @@ teach分支：本项目特有的教学分支，在项目第一阶段中，每一
 2. 本项目作为开源项目的管理模式
 本项目中，项目成员需要 fork 我们的主项目到自己的个人账号下的仓库中，从integration 分支拉出dev 
 分支，再通过发起 pull request 来把自己开发的代码提交到主代码仓库的 integration分支。
+
+
+16.130 接口测试框架设计3-TUGithubAPITest 的介绍
+1. 开发关键字由什么决定? 具体到 TUGithubAPI/TUGithubAPITest 这个项目呢?
+由需求决定. 在这个项目里是由 TUGithubAPITest这个项目内的具体case决定的
+
+2. TUGithubAPITest 内部包含哪些模块? 每个模块的具体作用?
+api_test 针对单个接口做的测试
+scenario_test 针对多个接口组成的业务场景的测试
+libraries 测试框架的库, 用户开发一些测试框架相关的库, 比如, 自定义测试报告模块, 测试数据
+管理模块.
+
+
+16.140 针对单个接口的测试
+1. 怎样针对单个接口做测试?
+使用脚本调用这个接口, 然后对这个接口的返回值做校验. 而且不限于校验返回值, 有时候还可以
+进行进一步的校验, 比如校验数据库里的值, 有两种方式, 可以直接读取数据库, 也可以通过调用
+其他现有接口来校验. 在写测试脚本时, 具体采用何种方式做校验取决于具体业务需求.
+
+2. 什么是软断言?
+当这个断言出错时, 当前的测试方法还会继续往下执行.
+
+3. python 中的 assert是软断言吗? 怎样实现软断言?
+assert 不是软断言, 也就是说当一个断言失败时测试方法就会立即退出, 不再执行后续的断言.
+要么自己实现软断言, 要么就把测试方法级别拆小, 也就是同一个接口分好多个测试方法. 但这
+并不意味着要拆到每个方法里只有一个断言, 需要自己把握好度.
+
+4. assert 后面的第二个参数表示什么?
+表示错误信息, 如果前面的断言失败, 则会输出这段错误信息
+
+5. 针对列出一个github organization 中的 repo 这个接口做软断言测试, org名称TestUpCommunity
+新建 test_01_repos.py
+import pytest
+
+
+def test_list_organization_repos_number(env):
+    r = env.github.repos.list_organization_repos("TestUpCommunity")
+    assert r.status_code == 200, "status_code should be 200 but actually={}".format(r)
+    assert len(r.json()) == 2
+
+def test_list_organization_repos_name(env):
+    r = env.github.repos.list_organization_repos("TestUpCommunity")
+    assert r.status_code == 200, "status_code should be 200 but actually={}".format(r)
+    assert r.json()[0].get('name') == "TUGithubAPI"
+    assert r.json()[0].get('name') == "TUGithubAPITest"
