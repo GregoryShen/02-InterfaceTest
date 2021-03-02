@@ -161,5 +161,131 @@ https://docs.github.com/en/rest/reference/git#create-a-reference
 
 16.190 如何在实际项目中应用测试框架
 1. 应用这个框架做实际项目的步骤?
+2. 拿到一个新项目时，怎样确认它的接口是基于什么协议的？
+3. 最常见的接口鉴权方式是什么？
+4. 以下是某电子商务项目的接口文档中鉴权说明：
+--------------------------------------------------------------------------------
+公共入参
 
+请求头需要设定几个固定入参，这些参数当用户处于登录状态下为必传项
 
+参数示例
+Parameter       类型          描述               例子
+userId          int          用户ID           20190001
+sessionId       string     用户登陆凭证      13333332333
+--------------------------------------------------------------------------------
+请参照以上说明写一个rest客户端的鉴权部分
+5. 接口文档一般包含哪些内容？
+6. 有以下接口文档
+--------------------------------------------------------------------------------
+1.注册
+接口地址：http://127.0.0.1/xxxx/user/v1/register
+请求方式:POST
+接口描述:用户注册，手机短信验证使用第三方短信平台，不包含在本平台中
+
+@RequestBody入参
+Parameter     类型       描述        例子
+phone        string     手机号     13523332333
+pwd          string      密码        123
+
+接口出参
+Parameter     类型        描述
+status       string       状态
+message      string     提示消息
+
+出参例子
+{
+"message": "注册成功",
+"status": "0000"
+}
+
+2.登陆
+接口地址：http://127.0.0.1/xxxx/user/v1/login
+请求方式:POST
+接口描述:用户登录，已注册用户输入注册手机号与密码进行登录操作
+
+@RequestBody入参
+Parameter     类型       描述          例子
+phone        string     手机号     13523332333
+pwd          string      密码          123
+
+接口出参 
+Parameter     类型        描述
+status       string       状态
+message      string      提示消息
+result      jsonObject   返回参数
+
+result结构
+Parameter     类型        描述
+userId        int         用户ID
+sessionId    string     用户登陆凭证
+nickName     string       用户昵称
+phone        string       用户手机号
+headPic      string     用户头像地址
+sex           int          性别，未提供修改性别的接口，返回默认1=男
+
+出参例子
+{
+  "result":{
+    "headPic": "http:// 127.0.0.1/xxxx/images/small/head_pic/2018-11-21/20181121100733.jpg",
+    "nickName": "OP_8mY65",
+    "phone": "16619958760",
+    "sessionId": "154276714558512",
+    "sex": 1,
+    "userId": 12
+  },
+  "message": "登录成功",
+  "status": "0000"
+}
+
+3. 修改昵称
+接口地址：http://127.0.0.1/xxxx/user/verify/v1/modifyUserNick
+请求方式:PUT
+接口描述: 用户修改自己的昵称操作
+
+@RequestHeader入参
+Parameter      类型         描述          例子
+userId         int         用户ID          18
+sessionId     string     用户登陆凭证     15320748258726
+
+@RequestBody入参
+Parameter     类型       描述         例子
+nickName     string     新昵称     好吃的鸡腿
+
+接口出参
+Parameter     类型        描述
+status       string       状态
+message      string     提示消息
+
+出参例子
+{
+"message": "修改成功",
+"status": "0000"
+}
+
+4. 修改用户密码
+接口地址：http://127.0.0.1/xxxx/user/verify/v1/modifyUserPwd
+请求方式:PUT
+接口描述: 修改用户密码
+
+@RequestHeader入参
+Parameter       类型         描述             例子
+userId          int         用户ID            18
+sessionId      string     用户登陆凭证     1352333233313
+
+@RequestBody入参
+Parameter     类型        描述     例子
+oldPwd       string     原密码     123
+newPwd       string     新密码     456
+
+接口出参
+Parameter     类型        描述
+status       string       状态
+message      string     提示消息
+
+出参例子
+{
+  "message": "修改成功",
+  "status": "0000"
+}
+--------------------------------------------------------------------------------
