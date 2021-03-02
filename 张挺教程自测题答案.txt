@@ -170,3 +170,28 @@ def test_list_organization_repos_name(env):
     assert r.status_code == 200, "status_code should be 200 but actually={}".format(r)
     assert r.json()[0].get('name') == "TUGithubAPI"
     assert r.json()[0].get('name') == "TUGithubAPITest"
+
+
+
+16.180 针对场景的测试
+1. 如何验证多个接口协同工作是否正常?
+(如何进行业务场景测试/如何验证待测系统的多个组件之间的协同工作是否正常)
+可以按照用户场景来测试. 在用户场景的接口测试中, 将会调用多个接口, 并观察多个接口
+调用后用户的业务场景是否能成功, 以此来验证多个接口协同工作是否正常
+
+2. 添加一个新的关键字用来创建分支
+相关接口:
+https://docs.github.com/en/rest/reference/git#get-a-reference
+https://docs.github.com/en/rest/reference/git#create-a-reference
+
+3. 在 scenario_test 下新建测试用例, 要求是: 利用在2中新建的关键字来在当前用户下
+创建一个名称随机的新代码仓库, 然后在这个代码仓库下创建一个名为 test 的分支.
+
+
+16.190 如何在实际项目中应用测试框架
+1. 应用这个框架做实际项目的步骤?
+1) 确认项目中所用的协议和数据封装方式
+2) 确认鉴权方式
+3) 确认接口文档, 并封装 Python 接口
+4) 使用 Python 接口封装关键字
+5) 在测试中灵活地使用关键字

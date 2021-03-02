@@ -149,8 +149,17 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 
 
 16.180 针对场景的测试
+1. 如何验证多个接口协同工作是否正常?
+(如何进行业务场景测试/如何验证待测系统的多个组件之间的协同工作是否正常)
+2. 添加一个新的关键字用来创建分支
+相关接口:
+https://docs.github.com/en/rest/reference/git#get-a-reference
+https://docs.github.com/en/rest/reference/git#create-a-reference
+3. 在 scenario_test 下新建测试用例, 要求是: 利用在2中新建的关键字来在当前用户下
+创建一个名称随机的新代码仓库, 然后在这个代码仓库下创建一个名为 test 的分支.
 
 
 16.190 如何在实际项目中应用测试框架
+1. 应用这个框架做实际项目的步骤?
 
 
