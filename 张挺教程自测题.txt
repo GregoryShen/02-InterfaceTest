@@ -7,7 +7,7 @@
 1. 为什么网络是要分层的?
 2. 网络分层方法有哪些?
 3. 分层和接口测试的关系?
-4. 
+4. 更广义的接口测试是什么?
 
 14.40 应用层和http协议
 1. 应用层是用来干嘛的? 有哪些常见的协议?
@@ -210,7 +210,7 @@ phone        string     手机号     13523332333
 pwd          string      密码          123
 
 接口出参 
-Parameter     类型        描述
+Parameter     类型         描述
 status       string       状态
 message      string      提示消息
 result      jsonObject   返回参数
@@ -222,7 +222,7 @@ sessionId    string     用户登陆凭证
 nickName     string       用户昵称
 phone        string       用户手机号
 headPic      string     用户头像地址
-sex           int          性别，未提供修改性别的接口，返回默认1=男
+sex           int       性别，未提供修改性别的接口，返回默认1=男
 
 出参例子
 {
@@ -289,3 +289,7 @@ message      string     提示消息
   "status": "0000"
 }
 --------------------------------------------------------------------------------
+将以上接口封装为 Example 类
+7. 为什么每个接口的参数都是 **kwargs, 而没有按照接口文档中去定义?
+8. 构建调用 Example 类的方法, 并调用修改用户昵称的接口,并验证
+
