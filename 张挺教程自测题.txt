@@ -1,3 +1,12 @@
+14.10 认识接口测试
+1. 手工测试和接口测试的简略结构是怎样的？
+2. 接口测试的目标是什么？
+3. UI 和 GUI 是什么？有什么区别？
+4. 封包和解包的过程是怎样的？
+5. 图形界面测试和接口测试的测试对象有什么不同？
+6. 什么是 Mock？
+
+
 14.20 网络协议
 1. 
 
@@ -133,9 +142,15 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 3. python 中的 assert 是软断言吗? 怎样实现软断言?
 4. assert 后面的第二个参数表示什么?
 5. 针对列出一个 github organization 中的 repo 这个接口做软断言测试, org名称TestUpCommunity
+接口文档地址：https://docs.github.com/en/rest/reference/repos#list-organization-repositories
 
 
 16.150 通过 fixture 做测试环境的切换
+1. 添加 environment.py 文件并定义 Env 类， 这个类是用来做什么的？
+2. 在 conftest.py 中定义 env 的 fixture
+3. 为什么env设置为autouse但是测试用例里还是传了env？
+4. 为什么 fixture 里的 print 语句不打印？
+5. 如何修改环境变量？
 
 
 16.160 给环境切换加上参数化
