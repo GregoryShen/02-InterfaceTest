@@ -24,8 +24,7 @@ GUI 是 Graphical User Interface, 图形化用户接口
 
 6. 什么是 Mock？
 用代码去模拟某部分我们不想测的东西的做法，我们通常称为 Mock
-
-
+---------------------------------------------------------------------------
 14.20 网络协议
 1. 网络协议是什么?
 网络协议定义了计算机之间通信的方式
@@ -36,20 +35,29 @@ GUI 是 Graphical User Interface, 图形化用户接口
 3. 什么是协议?
 协议定义了通信实体间交换的报文格式和次序以及发送和接收报文的方式及处理动作
 
-
+---------------------------------------------------------------------------
 14.30 网络分层和数据
 1. 为什么网络是要分层的?
-
+为了描述这样超级复杂的系统，计算机网络采用了分层的方法来描述这种复杂性。
+每一层本身都有一定的功能，每一层都是用它以下的所有层次提供的服务，我们只
+需要关注各层本身的功能和向上提供的服务就可以理解计算机网络这个复杂的系统
 
 2. 网络分层方法有哪些?
-
+5层因特网协议栈（从上到下）：应用层，传输层，网络层，链路层，物理层
+7层ISO OSI 参考模型（从上到下）：应用层，表示层，会话层，传输层，网络层，链路层，物理层
 
 3. 分层和接口测试的关系?
+在分层模型下描述的复杂系统它的每一层都会具备自己的功能以及向更上方的层次提供服务。
+接口测试测试的就是待测软件提供的服务。现在大多数待测软件是网络程序，它使用了
+互联网提供各个层次的服务，又在其上附加了自己的功能提供给用户使用。
+一个待测软件提供给用户用的很多很多接口就是我们接口测试要测试的服务。
+一个复杂的待测软件内部也可以有很多接口，也可以分层次。
 
 
 4. 更广义的接口测试是什么?
+在系统的各个层次上提供的服务，都可以做接口测试
 
-
+---------------------------------------------------------------------------
 14.40 应用层和http协议
 1. 应用层是用来干嘛的? 有哪些常见的协议?
 2. 应用层的网络应用程序是怎样工作的?
@@ -57,7 +65,12 @@ GUI 是 Graphical User Interface, 图形化用户接口
 4. HTTP 协议里请求和响应的格式分别是什么?
 5. 301, 400, 404, 500 分别代表什么含义?
 
-
+---------------------------------------------------------------------------
+14.50 其他层次和协议
+1. 还有哪些其他层次? 有哪些主要协议?
+2. 还有其他哪些协议? 他们之间的区别是什么?
+3. 这么多协议要怎么在接口测试的脚本中处理?
+---------------------------------------------------------------------------
 14.90 requests 中的会话
 
 1. cookie和session的定义？以及他们的区别
@@ -80,7 +93,7 @@ session 是存储在服务端, 在服务端的文件或数据库中都可以
 
 
 
-
+---------------------------------------------------------------------------
 16.07 接口测试的测试理论
 
 1. 什么情况下需要考虑使用接口测试？
@@ -151,7 +164,7 @@ ps 这么写我觉得还是不知道迭代通过的依据是什么
 2. 鉴权机制需要单独测试, 常见的鉴权机制有: 在请求头里包含token, 在请求头里的cookie里包含token
 3. 在不通网络状况下测试,比如弱网环境下.
 
-
+---------------------------------------------------------------------------
 16.10 接口测试框架设计
 1. 描述一个自动化测试框架在单机上运行时的过程
 首先启动测试执行器，测试执行器调用测试套件（测试套件指测试用例的集合），然后按照测试用例中
@@ -161,7 +174,7 @@ ps 这么写我觉得还是不知道迭代通过的依据是什么
 2. 在上述图示中圈出测试框架
 我们把测试驱动库，测试执行器以及测试套件们看做一个整体，称为测试框架
 
-
+---------------------------------------------------------------------------
 16.20 接口测试框架设计2
 1. TUGithubAPI和TUGithubAPITest分别是用来做什么的，二者的关系请画图说明
 TUGithubAPI是把Github提供的HTTP接口封装成Python类库
@@ -171,7 +184,7 @@ TUGithubAPITest是把测试用例集合到一起
 关键字就是把待测软件提供的接口封装成python方法，这些python方法就是关键字
 调用关键字组成测试用例，就是测试脚本
 
-
+---------------------------------------------------------------------------
 16.30 项目开始前的准备
 1. 解释master、release、integration、dev、hotfix、teach分支的含义
 master分支：主分支。我们将在主分支上做release，也就是发版本。
@@ -185,13 +198,21 @@ teach分支：本项目特有的教学分支，在项目第一阶段中，每一
 2. 本项目作为开源项目的管理模式
 本项目中，项目成员需要 fork 我们的主项目到自己的个人账号下的仓库中，从integration 分支拉出dev 
 分支，再通过发起 pull request 来把自己开发的代码提交到主代码仓库的 integration分支。
+---------------------------------------------------------------------------
+16.110 接口封装层设计的改进
+1. 重写repos和github类，并封装repositories下的traffic接口 
+   https://docs.github.com/en/rest/reference/repos#get-repository-clones
 
 
+2. 调用traffic下的list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。
+
+
+---------------------------------------------------------------------------
 16.120 关键字层的封装
-1. 什么是关键字?
-1) 就是一个按照一定格式封装好的 python 方法. 由于我们把这一层的关键字都按同样的格式
-封装, 我们在测试用例中调用关键字时就可以按照同行的方式来调用.
-2) 一个关键字应该具有一定的业务意义. 关键字例可以使用其他的关键字.
+1. 什么是关键字? 关键字有什么特点? 关键字和测试用例有什么关系?
+1) 就是一个按照一定格式封装好的 Python 方法. 由于我们把这一层的关键字都按同样的格式
+封装, 我们在测试用例中调用关键字时就可以按照同样的方式来调用.
+2) 一个关键字应该具有一定的业务意义. 关键字里可以使用其他的关键字.
 3) 最终我们用来组成测试用例的关键字一定是有比较明确的业务意义, 这样测试用例的可读性
 通过关键字来保证
 
@@ -206,39 +227,43 @@ def create_repo(github, name, org=None, description=None,
                 has_projects=True, has_issues=True) :
     """
     用来在当前用户或指定的 org 下创建 repo 的方法
-    :param github: Github 实例
-    :param name: string repo的名称
-    :param org: string, 在哪个organization 下创建repo, 默认为 None
-    :param description: string, repo的描述, 默认为None
-    :param homepage: string, repo主页, 默认为None
-    :param has_wiki: bool, 是否有wiki, 默认为True
-    :param has_projects: bool, 是否有 projects, 默认为 True
-    :prarm has_issues: bool, 是否有 issues, 默认为 True
-    :return: CommonItem
+    :param github: github 对象
+    :param name: string, repo 名称
+    :param org: string, 如果是要在一个 organization 下建repo，就在这里输入 org 名字；否则默认建在当前用户下
+    :param description: string, repo的描述
+    :param homepage: string, repo的主页URL
+    :param private: boolean, 值为 true 的时候建立一个私有 repo，为 false 时建立公开 repo，默认是 false
+    :param has_issues: boolean, true 会建立有 issues 的repo， false 则没有，默认是true
+    :param has_projects: boolean, true 会建立有 projects 的repo，false 则没有，默认是true
+    :param has_wiki: boolean, true 会建立有wiki的repo，false则没有，默认是true
+    :return: common item
     """
     result = CommonItem()
-    result.success = False
     payload = {
         "name": name,
         "description": description,
         "homepage": homepage,
+        "private": private,
         "has_wiki": has_wiki,
         "has_projects": has_projects,
         "has_issues": has_issues
     }
+    result.success = False
     if org:
-        response = github.repos.create_organization_repo(org, json=payload)
+        response = github.repos.create_organization_repo(org=org, json=payload)
     else:
         response = github.repos.create_user_repo(json=payload)
     result.response = response
     if response.status_code == 201:
         result.success = True
     else:
-        result.error = "create repo should be 201, but actually got {}".format(str(response.status_code))
+        result.error = "create repo got {},should be 201".format(str(response.status_code))
     return result
 
 3. 为什么封装的关键字中没有把全部的参数都写上?
-
+因为关键字是依托于具体业务的，它有一定的业务含义。这里假设业务上只用到这些参数，就
+只封装这些参数。如果后来业务变化了，需要用到更多的参数，那么谁的业务要用到那些参数，
+谁就往这个方法里加。
 
 4. 要不要在关键字内部写断言语句, 为什么?
 
@@ -250,7 +275,7 @@ def create_repo(github, name, org=None, description=None,
    4. test 4: 使用重复的repo名字再次创建，并且在断言语句中预期它会调用失败
 
 
-
+---------------------------------------------------------------------------
 16.130 接口测试框架设计3-TUGithubAPITest 的介绍
 1. 开发关键字由什么决定? 具体到 TUGithubAPI/TUGithubAPITest 这个项目呢?
 由需求决定. 在这个项目里是由 TUGithubAPITest这个项目内的具体case决定的
@@ -261,7 +286,7 @@ scenario_test 针对多个接口组成的业务场景的测试
 libraries 测试框架的库, 用户开发一些测试框架相关的库, 比如, 自定义测试报告模块, 测试数据
 管理模块.
 
-
+---------------------------------------------------------------------------
 16.140 针对单个接口的测试
 1. 怎样针对单个接口做测试?
 使用脚本调用这个接口, 然后对这个接口的返回值做校验. 而且不限于校验返回值, 有时候还可以
@@ -295,19 +320,25 @@ def test_list_organization_repos_name(env):
     assert r.json()[0].get('name') == "TUGithubAPI"
     assert r.json()[0].get('name') == "TUGithubAPITest"
 
-
+---------------------------------------------------------------------------
 16.150 通过 fixture 做测试环境的切换
 1. 添加 environment.py 文件并定义 Env 类， 这个类是用来做什么的？
 2. 在 conftest.py 中定义 env 的 fixture
 3. 为什么env设置为autouse但是测试用例里还是传了env？
 4. 为什么 fixture 里的 print 语句不打印？
 5. 如何修改环境变量？
+---------------------------------------------------------------------------
+16.160 给环境切换加上参数化
+1. 新建 data.ini 文件并修改 fixture env
+2. 修改 Github 和 Env 类
+---------------------------------------------------------------------------
+16.170 响应结果的预处理
+1. 改造 restclient 在其中加入对响应结果预处理的代码
+2. 用改造后的 restclient 重新书写测试用例, 测试用例为 test_list_all_public_repos
+3. 做预处理可以完全避免因exception而退出测试吗, 为什么?
 
 
-
-
-
-
+---------------------------------------------------------------------------
 16.180 针对场景的测试
 1. 如何验证多个接口协同工作是否正常?
 (如何进行业务场景测试/如何验证待测系统的多个组件之间的协同工作是否正常)
@@ -322,7 +353,7 @@ https://docs.github.com/en/rest/reference/git#create-a-reference
 3. 在 scenario_test 下新建测试用例, 要求是: 利用在2中新建的关键字来在当前用户下
 创建一个名称随机的新代码仓库, 然后在这个代码仓库下创建一个名为 test 的分支.
 
-
+---------------------------------------------------------------------------
 16.190 如何在实际项目中应用测试框架
 1. 应用这个框架做实际项目的步骤?
 1) 确认项目中所用的协议和数据封装方式
