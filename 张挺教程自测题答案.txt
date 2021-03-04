@@ -27,7 +27,36 @@ GUI 是 Graphical User Interface, 图形化用户接口
 
 
 14.20 网络协议
-1. 
+1. 网络协议是什么?
+网络协议定义了计算机之间通信的方式
+
+2. 协议的核心是什么?
+询问和回答的交流方式就是协议的核心, 也就是请求和响应
+
+3. 什么是协议?
+协议定义了通信实体间交换的报文格式和次序以及发送和接收报文的方式及处理动作
+
+
+14.30 网络分层和数据
+1. 为什么网络是要分层的?
+
+
+2. 网络分层方法有哪些?
+
+
+3. 分层和接口测试的关系?
+
+
+4. 更广义的接口测试是什么?
+
+
+14.40 应用层和http协议
+1. 应用层是用来干嘛的? 有哪些常见的协议?
+2. 应用层的网络应用程序是怎样工作的?
+3. HTTP 协议里是怎样封报文和解报文的?
+4. HTTP 协议里请求和响应的格式分别是什么?
+5. 301, 400, 404, 500 分别代表什么含义?
+
 
 14.90 requests 中的会话
 
@@ -158,6 +187,70 @@ teach分支：本项目特有的教学分支，在项目第一阶段中，每一
 分支，再通过发起 pull request 来把自己开发的代码提交到主代码仓库的 integration分支。
 
 
+16.120 关键字层的封装
+1. 什么是关键字?
+1) 就是一个按照一定格式封装好的 python 方法. 由于我们把这一层的关键字都按同样的格式
+封装, 我们在测试用例中调用关键字时就可以按照同行的方式来调用.
+2) 一个关键字应该具有一定的业务意义. 关键字例可以使用其他的关键字.
+3) 最终我们用来组成测试用例的关键字一定是有比较明确的业务意义, 这样测试用例的可读性
+通过关键字来保证
+
+2. 封装关键字 create_repo, 包含在当前用户下创建repo和在某个组织下创建repo两个接口
+   并指出该关键字存放的路径
+路径: opreations/repo.py
+
+from core.base import CommonItem
+
+def create_repo(github, name, org=None, description=None, 
+                homepage=None, private=False, has_wiki=True, 
+                has_projects=True, has_issues=True) :
+    """
+    用来在当前用户或指定的 org 下创建 repo 的方法
+    :param github: Github 实例
+    :param name: string repo的名称
+    :param org: string, 在哪个organization 下创建repo, 默认为 None
+    :param description: string, repo的描述, 默认为None
+    :param homepage: string, repo主页, 默认为None
+    :param has_wiki: bool, 是否有wiki, 默认为True
+    :param has_projects: bool, 是否有 projects, 默认为 True
+    :prarm has_issues: bool, 是否有 issues, 默认为 True
+    :return: CommonItem
+    """
+    result = CommonItem()
+    result.success = False
+    payload = {
+        "name": name,
+        "description": description,
+        "homepage": homepage,
+        "has_wiki": has_wiki,
+        "has_projects": has_projects,
+        "has_issues": has_issues
+    }
+    if org:
+        response = github.repos.create_organization_repo(org, json=payload)
+    else:
+        response = github.repos.create_user_repo(json=payload)
+    result.response = response
+    if response.status_code == 201:
+        result.success = True
+    else:
+        result.error = "create repo should be 201, but actually got {}".format(str(response.status_code))
+    return result
+
+3. 为什么封装的关键字中没有把全部的参数都写上?
+
+
+4. 要不要在关键字内部写断言语句, 为什么?
+
+
+5. 调用2中的关键字,进行测试和断言, 分以下集中情况:
+   1. test 1: 在当前用户下创建一个repo，除了repo名字以外全部用默认值
+   2. test 2: 在当前用户下创建一个repo，使用一些输入值
+   3. test 3: 创建一个名为testme的repo，并且不包含projects，不包含issues，也不包含wiki
+   4. test 4: 使用重复的repo名字再次创建，并且在断言语句中预期它会调用失败
+
+
+
 16.130 接口测试框架设计3-TUGithubAPITest 的介绍
 1. 开发关键字由什么决定? 具体到 TUGithubAPI/TUGithubAPITest 这个项目呢?
 由需求决定. 在这个项目里是由 TUGithubAPITest这个项目内的具体case决定的
@@ -259,3 +352,26 @@ https://docs.github.com/en/rest/reference/git#create-a-reference
 的地方传入别的内容, 而无需修改这里的代码.
 
 8. 构建调用 Example 类的方法, 并调用修改用户昵称的接口,并验证
+from api.xxx.example import Example
+
+class OnlineBusiness:
+    def __init__(self, api_root_url, **kwargs):
+        self.api_root_url = api_root_url
+        self.example = Example(self.api_root_url, **kwargs)
+
+if __name__ == '__main__':
+    ob = OnlineBusiness("http://127.0.0.1")
+    payload = {
+        "phone": "13523332333",
+        "pwd": 123
+    }
+    resp = ob.example.login(json=payload)
+    assert resp.content['status'] == "0000"
+    userId = resp.content['result']['userId']
+    sessionId = resp.content['result']['sessionId']
+    ob = OnlineBusiness("http://127.0.0.1", userId=userId, sessionId=sessionId)
+    payload = {
+        "nickName": "新昵称"
+    }
+    resp = ob.example.modify_user_nick(json=payload)
+    assert resp.content['status'] == "0000"
