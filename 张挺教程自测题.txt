@@ -151,8 +151,8 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 5. 如何修改环境变量？
 ---------------------------------------------------------------------------
 16.160 给环境切换加上参数化
-1. 新建 data.ini 文件并修改 fixture env
-2. 修改 Github 和 Env 类
+1. 修改 Github 和 Env 类, 使之适配参数化
+2. 新建 data.ini 文件并修改 fixture env
 ---------------------------------------------------------------------------
 16.170 响应结果的预处理
 1. 改造 restclient 在其中加入对响应结果预处理的代码
@@ -302,4 +302,5 @@ message      string     提示消息
 将以上接口封装为 Example 类
 7. 为什么每个接口的参数都是 **kwargs, 而没有按照接口文档中去定义?
 8. 构建调用 Example 类的方法, 并调用修改用户昵称的接口,并验证
-
+9. 对应 Example 封装登录关键字 login_with_phone_and_pwd
+10. 将9的关键字放入 conftest.py 中，并调用修改昵称测试用例来做演示

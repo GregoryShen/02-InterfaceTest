@@ -53,10 +53,8 @@ GUI 是 Graphical User Interface, 图形化用户接口
 一个待测软件提供给用户用的很多很多接口就是我们接口测试要测试的服务。
 一个复杂的待测软件内部也可以有很多接口，也可以分层次。
 
-
 4. 更广义的接口测试是什么?
 在系统的各个层次上提供的服务，都可以做接口测试
-
 ---------------------------------------------------------------------------
 14.40 应用层和http协议
 1. 应用层是用来干嘛的? 有哪些常见的协议?
@@ -199,6 +197,46 @@ teach分支：本项目特有的教学分支，在项目第一阶段中，每一
 本项目中，项目成员需要 fork 我们的主项目到自己的个人账号下的仓库中，从integration 分支拉出dev 
 分支，再通过发起 pull request 来把自己开发的代码提交到主代码仓库的 integration分支。
 ---------------------------------------------------------------------------
+16.40 Rest请求客户端
+1. 实现本项目中的 Rest 请求客户端
+2. 说明 RestClient 类里出现的各种 HTTP 方法的含义和区别
+3. 写一段脚本, 使用 RestClient 向 github.com 的首页发送 get 请求
+---------------------------------------------------------------------------
+16.50 通过接口登录Github
+1. 在 rest_client 中添加登录方式信息
+2. 封装查看所有repos的接口，接口地址：https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+3. 调用2中的接口查看结果
+---------------------------------------------------------------------------
+16.60 封装一个 Get 请求
+1. 封装一个接口: 接口地址: https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+   封装要求：将参数封装在接口地址里，然后对这个接口进行单个参数的测试
+2. 按照文档设计更多的输入参数, 对这个接口做测试, 尽可能多的覆盖各种输入组合以及正常和异常场景
+---------------------------------------------------------------------------
+16.70 进一步思考 Get 请求的封装请求的封装
+1. 说明 16.6 中的接口封装方式有什么问题，并改为通用的格式并调用
+2. 这个项目中基础封装的原则
+3. 按照基础封装的原则封装两个接口, 并调用它
+文档地址: https://docs.github.com/en/rest/reference/repos#list-organization-repositories
+https://docs.github.com/en/rest/reference/repos#list-public-repositories
+---------------------------------------------------------------------------
+16.80 封装更多类型的请求
+1. 封装 repositories 中的其他接口
+创建: https://docs.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+获取: https://docs.github.com/en/rest/reference/repos#get-a-repository
+编辑: https://docs.github.com/en/rest/reference/repos#update-a-repository
+2. 调用这些接口验证功能
+---------------------------------------------------------------------------
+16.90 在项目实战中提交代码
+
+---------------------------------------------------------------------------
+16.100 TUGithubAPI 项目的介绍的补充
+1. 给你一个网站接口项目要你测, 你怎么测?
+
+2. 你的框架怎么设计, 有哪些模块?
+
+3. 介绍一下你以前做过的项目里是怎么做这些模块的?
+
+---------------------------------------------------------------------------
 16.110 接口封装层设计的改进
 1. 重写repos和github类，并封装repositories下的traffic接口 
    https://docs.github.com/en/rest/reference/repos#get-repository-clones
@@ -266,7 +304,8 @@ def create_repo(github, name, org=None, description=None,
 谁就往这个方法里加。
 
 4. 要不要在关键字内部写断言语句, 为什么?
-
+不需要，因为 result.success 只是代表关键字里的业务执行成功， 我们有可能预期有个业务
+就是要失败的。
 
 5. 调用2中的关键字,进行测试和断言, 分以下集中情况:
    1. test 1: 在当前用户下创建一个repo，除了repo名字以外全部用默认值
@@ -274,7 +313,29 @@ def create_repo(github, name, org=None, description=None,
    3. test 3: 创建一个名为testme的repo，并且不包含projects，不包含issues，也不包含wiki
    4. test 4: 使用重复的repo名字再次创建，并且在断言语句中预期它会调用失败
 
+目录： scripts/debug.py
 
+from github import Github
+from operations.repo import create_repo
+
+if __name__ == '__main__':
+    github = Github(token="xxx")
+
+    # test1
+    result = create_repo(github, "test1")
+    assert result.success == True, result.error
+
+    # test2
+    result = create_repo(github, "test2", has_wiki=False)
+    assert result.success == True, result.error
+
+    # test3
+    result = create_repo(github, "testme", has_projects=False, has_issues=False, has_wiki=False)
+    assert result.success == True, result.error
+
+    # test4
+    result = create_repo(github, "testme", has_projects=False, has_issues=False, has_wiki=False)
+    assert result.success == False, result.error
 ---------------------------------------------------------------------------
 16.130 接口测试框架设计3-TUGithubAPITest 的介绍
 1. 开发关键字由什么决定? 具体到 TUGithubAPI/TUGithubAPITest 这个项目呢?
@@ -285,7 +346,6 @@ api_test 针对单个接口做的测试
 scenario_test 针对多个接口组成的业务场景的测试
 libraries 测试框架的库, 用户开发一些测试框架相关的库, 比如, 自定义测试报告模块, 测试数据
 管理模块.
-
 ---------------------------------------------------------------------------
 16.140 针对单个接口的测试
 1. 怎样针对单个接口做测试?
@@ -296,7 +356,7 @@ libraries 测试框架的库, 用户开发一些测试框架相关的库, 比如
 2. 什么是软断言?
 当这个断言出错时, 当前的测试方法还会继续往下执行.
 
-3. python 中的 assert是软断言吗? 怎样实现软断言?
+3. python 中的 assert 是软断言吗? 怎样实现软断言?
 assert 不是软断言, 也就是说当一个断言失败时测试方法就会立即退出, 不再执行后续的断言.
 要么自己实现软断言, 要么就把测试方法级别拆小, 也就是同一个接口分好多个测试方法. 但这
 并不意味着要拆到每个方法里只有一个断言, 需要自己把握好度.
@@ -319,22 +379,124 @@ def test_list_organization_repos_name(env):
     assert r.status_code == 200, "status_code should be 200 but actually={}".format(r)
     assert r.json()[0].get('name') == "TUGithubAPI"
     assert r.json()[0].get('name') == "TUGithubAPITest"
-
 ---------------------------------------------------------------------------
 16.150 通过 fixture 做测试环境的切换
 1. 添加 environment.py 文件并定义 Env 类， 这个类是用来做什么的？
+
+from github import Github
+
+class Env:
+    def __init__(self, token):
+        self.github = Github(token=token)
+
+这个类是用来切换环境的。
+
 2. 在 conftest.py 中定义 env 的 fixture
+from environment import Env
+
+@pytest.fixture(scope="module", autouse=True)
+def env():
+    yield Env(token=os.environ['token'])
+
 3. 为什么env设置为autouse但是测试用例里还是传了env？
+因为 env 是一个有返回值的 fixture，所以不管 autouse 是否为 True，如果要用这个返回值，
+就必须显式指定。
+
 4. 为什么 fixture 里的 print 语句不打印？
+因为 pytest 的机制： 如果测试不失败，则测试执行过程中的所有 print 语句都不会被
+打印出来。
+
 5. 如何修改环境变量？
+可以通过 pycharm 的 Run-Edit Configurations-Environment-Environment variables来修改
+也可以通过在操作系统里设置等方法做修改
+也可以把这一行替换成一个写死的 token 字符串
 ---------------------------------------------------------------------------
 16.160 给环境切换加上参数化
-1. 新建 data.ini 文件并修改 fixture env
-2. 修改 Github 和 Env 类
+1. 修改 Github 和 Env 类, 使之适配参数化
+github.py
+
+from api.repositories.repos import Repos
+from api.issues.issues import Issues 
+from api.checks.checks import Checks
+
+class Github:
+    def __init__(self, api_root_url, **kwargs):
+        self.api_root_url = api_root_url
+        self.repos = Repos(self.api_root_url, **kwargs)
+        self.issues = Issues(self.api_root_url, **kwargs)
+        self.checks = Checks(self.api_root_url, **kwargs)
+
+environment.py
+
+from github import Github
+
+class Env:
+    def __init_(self, api_root_url, token)
+        self.github = Github(api_root_url, token=token)
+
+2. 新建 data.ini 文件并修改 fixture env
+[test_env]
+api_root_url: https://api.github.com
+
+[dev_env]
+api_root_url: https://api.github.com
+
+[release_env]
+api_root_url: https://api.github.com
+
+import pytest
+import os
+from environment import Env
+from configparser import ConfigParser
+
+
+@pytest.fixture(scope="module", autouse=True)
+def env():
+    config = ConfigParser()
+    config.read('data.ini')
+    api_root_url=config[os.environ['env']]['api_root_url']
+    yield Env(api_root_url=api_root_url, token=os.environ['token'])
 ---------------------------------------------------------------------------
 16.170 响应结果的预处理
 1. 改造 restclient 在其中加入对响应结果预处理的代码
+import requests
+
+class RestClient:
+    def __init__(self, api_root_url, username=None, 
+                 password=None, token=None, **kwargs):
+        self.api_root_url = api_root_url
+        self.session = requests.Session()
+        if username and password:
+            self.session.auth = (username, password)
+        elif token:
+            self.session.headers['Authorization'] = "token {}".format(token)
+
+    def get(url, **kwargs):
+        return self.request(url, "get", **kwargs)
+
+
+
+
+def process(raw_response):
+    response = Response()
+    response.raw = raw_response
+    response.status_code = raw_status_code
+    try:
+        response.content = raw_response.json()
+    except:
+        response.content = raw_response.content
+    return response
+
+
+class Response:
+    def __init__(self):
+        self.raw = None
+        self.content = None
+        self.status_code = None
+
+
 2. 用改造后的 restclient 重新书写测试用例, 测试用例为 test_list_all_public_repos
+
 3. 做预处理可以完全避免因exception而退出测试吗, 为什么?
 
 
@@ -370,19 +532,42 @@ https://docs.github.com/en/rest/reference/git#create-a-reference
 最常见的接口鉴权方式是在请求头内包含特定的参数。
 
 4. 请参照以上说明写一个rest客户端的鉴权部分
+import requests
 
+class RestClient:
+    def __init__(self, api_root_url, userId=None, sessionId=None):
+        self.api_root_url = api_root_url
+        self.session = requests.Session()
+        if userId and sessionId:
+            self.session.headers['userId'] = userId
+            self.session.headers['sessionId'] = sessionId
 
 5. 接口文档一般包含哪些内容？
-
+接口名称，接口说明，请求参数，响应参数，错误码
+有些文档里会给出接口调用的例子和响应的例子
 
 6. 将以上接口封装为 Example 类
+from core.rest_client import RestClient
 
+
+class Example(RestClient):
+    def register(self, **kwargs):
+        return self.post("/xxxx/user/v1/register", **kwargs)
+
+    def login(self, **kwargs):
+        return self.post("/xxxx/user/v1/login", **kwargs)
+
+    def modify_user_nick(self, **kwargs):
+        return self.put("/xxxx/user/verify/v1/modifyUserNick", **kwargs)
+
+    def modify_user_pwd(self, **kwargs):
+        return self.put("/xxxx/user/verify/v1/modifyUserPwd", **kwargs)
 
 7. 为什么每个接口的参数都是 **kwargs, 而没有按照接口文档中去定义?
 因为这种写法在调用时可以直接传入 json 作为参数, 如果以后接口修改, 可以只在调用
 的地方传入别的内容, 而无需修改这里的代码.
 
-8. 构建调用 Example 类的方法, 并调用修改用户昵称的接口,并验证
+8. 构建调用 Example 类的方法, 调用修改用户昵称的接口,并验证
 from api.xxx.example import Example
 
 class OnlineBusiness:
@@ -400,9 +585,54 @@ if __name__ == '__main__':
     assert resp.content['status'] == "0000"
     userId = resp.content['result']['userId']
     sessionId = resp.content['result']['sessionId']
-    ob = OnlineBusiness("http://127.0.0.1", userId=userId, sessionId=sessionId)
+    ob = OnlineBusiness(api_root_url="http://127.0.0.1", userId=userId, sessionId=sessionId)
     payload = {
         "nickName": "新昵称"
     }
     resp = ob.example.modify_user_nick(json=payload)
     assert resp.content['status'] == "0000"
+
+9. 对应 Example 封装登录关键字 login_with_phone_and_pwd
+from core.base import CommonItem
+
+def login_with_phone_and_pwd(ob, phone, pwd):
+    """
+    用户登录。
+    :param ob: onlinebusiness 对象
+    :param phone: string, 电话号码
+    :param pwd: string, 密码
+    :return: common item
+    """
+    result = CommonItem()
+    payload = {
+        "phone": phone,
+        "pwd": pwd
+    }
+    response = ob.example.login(json=payload)
+    result.response = response
+    if response.content['status'] != '0000':
+        result.success = False
+        resutl.error = "登录失败"
+        return result
+    userId = response.content['result']['userId']
+    sessionId = response.content['result']['sessionId']
+    ob = OnlineBusiness(api_root_url=ob.api_root_url, userId=userId, sessionId=sessionId)
+    result.success = True
+    result.ob = ob
+    return result
+
+10. 将9的关键字放入 conftest.py 中，并调用修改昵称测试用例来做演示
+@pytest.fixture(scope="function", autouse=True)
+def ob():
+    ob = OnlineBusiness(api_root_url=ob.api_root_url)
+    yield login_with_phone_and_pwd(ob, phone, pwd)
+
+这个例子里，并没有给 phone 和 pwd 赋值，实际测试中可以从环境变量读取这个值，
+这样，在每个测试方法里只要带上参数 ob，就可以直接使用了
+
+def test_modify_nick_name(ob):
+    payload = {
+        "nickName": "新昵称"
+    }
+    response = ob.example.modify_user_nick(json=payload)
+    assert response.content['status'] == '0000'
