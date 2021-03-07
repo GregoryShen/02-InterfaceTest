@@ -34,7 +34,6 @@ GUI 是 Graphical User Interface, 图形化用户接口
 
 3. 什么是协议?
 协议定义了通信实体间交换的报文格式和次序以及发送和接收报文的方式及处理动作
-
 ---------------------------------------------------------------------------
 14.30 网络分层和数据
 1. 为什么网络是要分层的?
@@ -58,19 +57,60 @@ GUI 是 Graphical User Interface, 图形化用户接口
 ---------------------------------------------------------------------------
 14.40 应用层和http协议
 1. 应用层是用来干嘛的? 有哪些常见的协议?
-2. 应用层的网络应用程序是怎样工作的?
-3. HTTP 协议里是怎样封报文和解报文的?
-4. HTTP 协议里请求和响应的格式分别是什么?
-5. 301, 400, 404, 500 分别代表什么含义?
+应用层是网络应用程序和他们的应用层协议所在之处.
+常见的协议有: http, smtp, ftp
 
+2. 应用层的网络应用程序是怎样工作的?
+通过在客户端封装报文, 使用应用层的 http 协议和应用层以下的层次提供的“把报文
+传送到服务器端”的服务来完成报文的传输, 之后服务器端再把报文解开,提取出内容,
+然后把请求结果用一样的流程返回到客户端.
+
+3. HTTP 协议里是怎样封报文和解报文的?
+http 协议里是按照协议规定好的格式来封装报文和解报文的
+
+4. HTTP 协议里请求和响应的格式分别是什么?
+请求格式: 
+请求行: 包括使用的http方法, 请求的URL和协议版本
+请求头: key: value 格式, 可以放有业务意义的字段,也可以放通用内容比如日期服务器软件名等
+请求体: 具体的业务数据, 比如restful风格的http接口会在这里放一个 json 对象
+响应格式:
+状态行: 包括协议版本,状态码和短语
+响应头和响应体和请求中一样
+
+5. 301, 400, 404, 500 分别代表什么含义?
+301 Permanent Redirect 代表所请求的内容已永久转移. 这个响应头会带上 location 字段包含新的网址, 客户端会自动
+再次向新网址发起请求
+400 Bad Request 表示发送的请求服务器无法理解,通常是发送了错误的请求内容
+404 Not Found 请求的资源找不到
+500 InernalServerError 服务器内部错误
 ---------------------------------------------------------------------------
 14.50 其他层次和协议
 1. 还有哪些其他层次? 有哪些主要协议?
+还有传输层,主要协议有: tcp和udp
+网络层,主要协议有: ip
+链路层,主要协议有: csma/cd
+物理层
+
 2. 还有其他哪些协议? 他们之间的区别是什么?
+比如 dubbo, webservice, rmi 等
+不通协议的区别只是封装报文的格式不同,或加了一些特殊限制,又或者是所基于的传输协议不同
+
 3. 这么多协议要怎么在接口测试的脚本中处理?
+1) 先找现成的实现了这个协议的第三方库
+2) 没有第三方库时使用它的下一层的协议的库来自己实现一个库
+---------------------------------------------------------------------------
+14.60 使用 requests 访问豆瓣
+
+---------------------------------------------------------------------------
+14.70 requests 构建 HTTP 请求
+1. 
+
+---------------------------------------------------------------------------
+14.80 requests 中的响应
+1. 
+
 ---------------------------------------------------------------------------
 14.90 requests 中的会话
-
 1. cookie和session的定义？以及他们的区别
 cookie 是 Web 服务器保存在用户浏览器上的小文本文件, 它可以包含用户的信息, 比如用户名、加密后的密码等信息.
 当我们再次使用这个浏览器访问这个服务器时, 服务器可以直接读取这些信息, 而无需用户再次输入.
@@ -82,15 +122,16 @@ session 是存储在服务端, 在服务端的文件或数据库中都可以
 一般来说 session 的验证需要 cookie 带一个字段来表示这个用户是哪一个 session, 所以当客户端禁用 cookie 时, session 将失效.
 
 2. 如果响应中含有cookies，如何读取？给出示例代码 url="http://example.com/some/cookie/setting/url", cookie的name是example_cookie_name
+
 3. 如果想在请求中添加cookies，如何操作？ url=http://httpbin.org/cookies
+
 4. 如何把RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
+
+
 5. 如何在requests中使用会话？给出示例代码？ 也就是如何证明session的功能？
    就是可以在不同请求中确认服务器记住了我们的cookie
-
-
-
-
-
+---------------------------------------------------------------------------
+---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 16.07 接口测试的测试理论
 
@@ -120,7 +161,7 @@ session 是存储在服务端, 在服务端的文件或数据库中都可以
     2) 看有谁关心这个问题
     3) 有没有安全风险
 
-6. 判断一个迭代的测试有没有通过的依据?
+06. 判断一个迭代的测试有没有通过的依据?
 测试是为项目服务的,而不是反过来项目为测试服务. 所以测试人员通常不会说一个项目质量太差不能发布, 
 而是把当前质量状态下发布会产生的风险提示给项目相关人员. 
 具体风险可以是有多少严重程度为什么等级的bug, 有没有必须修复的严重问题仍未修复.
@@ -161,7 +202,6 @@ ps 这么写我觉得还是不知道迭代通过的依据是什么
 1. 接口测试的返回值可能有多种错误代码, 这些错误代码可以覆盖一下
 2. 鉴权机制需要单独测试, 常见的鉴权机制有: 在请求头里包含token, 在请求头里的cookie里包含token
 3. 在不通网络状况下测试,比如弱网环境下.
-
 ---------------------------------------------------------------------------
 16.10 接口测试框架设计
 1. 描述一个自动化测试框架在单机上运行时的过程
@@ -171,17 +211,15 @@ ps 这么写我觉得还是不知道迭代通过的依据是什么
 
 2. 在上述图示中圈出测试框架
 我们把测试驱动库，测试执行器以及测试套件们看做一个整体，称为测试框架
-
 ---------------------------------------------------------------------------
 16.20 接口测试框架设计2
-1. TUGithubAPI和TUGithubAPITest分别是用来做什么的，二者的关系请画图说明
-TUGithubAPI是把Github提供的HTTP接口封装成Python类库
+1. TUGithubAPI 和 TUGithubAPITest 分别是用来做什么的，二者的关系请画图说明
+TUGithubAPI 是把 Github 提供的 HTTP 接口封装成 Python 类库
 TUGithubAPITest是把测试用例集合到一起
 
 2. 解释关键字和脚本的概念
 关键字就是把待测软件提供的接口封装成python方法，这些python方法就是关键字
 调用关键字组成测试用例，就是测试脚本
-
 ---------------------------------------------------------------------------
 16.30 项目开始前的准备
 1. 解释master、release、integration、dev、hotfix、teach分支的含义
@@ -197,54 +235,211 @@ teach分支：本项目特有的教学分支，在项目第一阶段中，每一
 本项目中，项目成员需要 fork 我们的主项目到自己的个人账号下的仓库中，从integration 分支拉出dev 
 分支，再通过发起 pull request 来把自己开发的代码提交到主代码仓库的 integration分支。
 ---------------------------------------------------------------------------
+16.35 代码的下载和提交
+1.
+---------------------------------------------------------------------------
 16.40 Rest请求客户端
 1. 实现本项目中的 Rest 请求客户端
+
 2. 说明 RestClient 类里出现的各种 HTTP 方法的含义和区别
+
 3. 写一段脚本, 使用 RestClient 向 github.com 的首页发送 get 请求
+
 ---------------------------------------------------------------------------
 16.50 通过接口登录Github
 1. 在 rest_client 中添加登录方式信息
+
 2. 封装查看所有repos的接口，接口地址：https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
+
 3. 调用2中的接口查看结果
+
 ---------------------------------------------------------------------------
 16.60 封装一个 Get 请求
 1. 封装一个接口: 接口地址: https://docs.github.com/en/rest/reference/repos#list-repositories-for-the-authenticated-user
    封装要求：将参数封装在接口地址里，然后对这个接口进行单个参数的测试
+
 2. 按照文档设计更多的输入参数, 对这个接口做测试, 尽可能多的覆盖各种输入组合以及正常和异常场景
+
 ---------------------------------------------------------------------------
 16.70 进一步思考 Get 请求的封装请求的封装
 1. 说明 16.6 中的接口封装方式有什么问题，并改为通用的格式并调用
+
 2. 这个项目中基础封装的原则
+
 3. 按照基础封装的原则封装两个接口, 并调用它
 文档地址: https://docs.github.com/en/rest/reference/repos#list-organization-repositories
 https://docs.github.com/en/rest/reference/repos#list-public-repositories
+
 ---------------------------------------------------------------------------
 16.80 封装更多类型的请求
 1. 封装 repositories 中的其他接口
 创建: https://docs.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+     https://docs.github.com/en/rest/reference/repos#create-an-organization-repository
 获取: https://docs.github.com/en/rest/reference/repos#get-a-repository
 编辑: https://docs.github.com/en/rest/reference/repos#update-a-repository
+
+from core.restclient import RestClient
+
+class Repos(RestClient):
+    def __init__(self, api_root_url, **kwargs):
+        super(Repos, self).__init__(self, api_root_url, **kwargs)
+
+    def create_user_repo(self, **kwargs):
+        """
+        https://docs.github.com/en/rest/reference/repos#create-a-repository-for-the-authenticated-user
+        """
+        return self.post("/user/repos", **kwargs)
+
+    def create_organization_rep(self, org, **kwargs):
+        """
+        https://docs.github.com/en/rest/reference/repos#create-an-organization-repository
+        """
+        return self.post("/orgs/{}/repos".format(org), **kwargs)
+
+    def get_repo(self, owner, repo, **kwargs):
+        """
+        https://docs.github.com/en/rest/reference/repos#get-a-repository
+        """
+        return self.get("/repos/{}/{}".format(owner, repo), **kwargs)
+
+    def edit_repo(self, owner, repo, **kwargs):
+        """
+        https://docs.github.com/en/rest/reference/repos#update-a-repository
+        """
+        return self.patch("/repos/{}/{}".format(owner, repo), **kwargs)
+        
 2. 调用这些接口验证功能
+from api.repositories.repos import Repos
+
+class Github:
+    def __init__(self, **kwargs):
+        self.api_root_url = "https://api.github.com"
+        self.repos = Repos(self.api_root_url, **kwargs)
+
+if __name__ == '__main__':
+    r = Github(token=token)
+    username = "zhangting85"
+    orgname = "xxx"
+    # case 1
+    data = {
+        "name": "Hello-World",
+        "description": "This is your first repository",
+        "homepage": "https://github.com",
+        "private": False,
+        "has_issues": True,
+        "has_projects": True,
+        "has_wiki": True
+    }
+    x1 = r.repos.create_user_repo(json=data)
+    assert x1.status_code == 201
+
+    # case 2
+    x2 = r.repos.create_organization_repo(org=orgname, json=data)
+    assert x1.status_code == 201
+
+    # case 3
+    x3 = r.repos.get_repos(username, "Hello-World")
+    assert x3.status_code == 200
+    print(x3.text)
+
+    # case 4
+    data = {
+        "name": "Hello-World",
+        "description": "This is your first repository",
+        "homepage": "https://github.com",
+        "private": False,
+        "has_issues": True,
+        "has_projects": True,
+        "has_wiki": True
+    }
+    x4 = r.repos.edit_repo(username, "Hello-World", json=data)
+    assert x3.status_code == 200
+    print(x4.text)
+
+3. 给 patch 方法加一个自动 json 类型转换
+if method_name == "patch":
+    if json:
+        data = json_parser.dumps(json)
+    return self.session.patch(url, data, **kwargs)
+这里要注意, 是在request方法里修改, 而self.patch方法不变,还是只有data一个默认
+参数, 而json是包含在**kwargs里的
 ---------------------------------------------------------------------------
 16.90 在项目实战中提交代码
+1. 如何在项目中下载代码并修改和提交
+1) fork 你要提交代码的仓库到你的GitHub
+2) 在 fork 出来的仓库中,从 integration_1 分支上拉出一个新的分支, 命名为 feature_xxx
+这里 integration_1 表示这是 release 1的集成分支. 当项目进入 release 2, 这里自然也
+改用 release_2. feature_xxx 表示开发分支, 每个人都可以有自己的开发分支
+3) 当代码写完并提交到fork下来的仓库之后, 提交PR
 
+2. 如何更新 fork 出来的代码仓库
+从社群仓库发起一个 PR 到自己的仓库上, 然后再在自己的仓库上合并 PR
 ---------------------------------------------------------------------------
 16.100 TUGithubAPI 项目的介绍的补充
-1. 给你一个网站接口项目要你测, 你怎么测?
+1. 项目实战一共有几种任务?
+接口封装, 关键字封装, 测试脚本封装, 框架完善任务
 
-2. 你的框架怎么设计, 有哪些模块?
+2. 给你一个网站接口项目要你测, 你怎么测?
+我搭建一套测试框架, 使用python来进行自动化测试
 
-3. 介绍一下你以前做过的项目里是怎么做这些模块的?
+3. 你的框架怎么设计, 有哪些模块?
+分成接口封装、关键字封装、测试用例等模块, 用python把http接口封装成python接口,
+然后把这些接口组装成测试用例. 最后用测试执行器来运行这些脚本,并生成报告.具体选型
+为python+requests+pytest
 
+4. 介绍一下你以前做过的项目里是怎么做这些模块的?
+这里,我们主要是构建从一套http接口到封装成python接口再到包装成关键字, 组成测试用例
+这一整个流程的原理
 ---------------------------------------------------------------------------
 16.110 接口封装层设计的改进
-1. 重写repos和github类，并封装repositories下的traffic接口 
+1. 什么情况下才需要显式写出父类的初始化方法?
+当需要继续扩展这个初始化方法, 并保留父类初始化方法功能的时候
+
+2. 重写repos(只需要写releases, traffic, statistics, statuses)和github类，并封装repositories下的traffic下的接口
    https://docs.github.com/en/rest/reference/repos#get-repository-clones
+from core.restclient import RestClient
 
+class Repos(RestClient):
+    def __init__(self, api_root_url, **kwargs):
+        super(Repos, self).__init__(api_root_url, **kwargs)
+        self.releases = Releases(api_root_url, **kwargs)
+        self.traffic = Traffic(api_root_url, **kwargs)
+        self.statistics = Statistics(api_root_url, **kwargs)
+        self.releases = Releases(api_root_url, **kwargs)
 
-2. 调用traffic下的list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。
+from api.repositories.repos import Repos
+class Github:
+    def __init__(self, **kwargs):
+        self.api_root_url = "https://api.github.com"
+        self.repos = Repos(self.api_root_url, **kwargs)
+        self.issues = Issues(self.api_root_url, **kwargs)
+        self.search = Search(self.api_root_url, **kwargs)
 
+class Traffic(RestClient):
+    def list_clones(self, owner, repo, **kwargs):
+        return self.get("/repos/{}/{}/traffic/clones".format(owner, repo), **kwargs)
 
+    def get_top_referral_paths(self, owner, repo, **kwargs):
+        return self.get("/repos/{}/{}/traffic/popular/paths".format(owner, repo), **kwargs)
+
+    def get_top_referral_sources(self, owner, repo, **kwargs):
+        return self.get("/repos/{}/{}/traffic/popular/referrers".format(owner, repo), **kwargs)
+
+    def get_page_views(self, owner, repo, **kwargs):
+        return self.get("/repos/{}/{}/traffic/views".format(owner, repo), **kwargs)
+
+3. 调用traffic下的list_clones查询你自己名下的某个代码仓库在最近14天里每天的被clone次数。
+
+if __name__ == '__main__':
+    github = Github(token="xxxxx")
+    payload = {
+        "per": "week"
+    }
+    username = "zhangting85"
+    repo = "TUGithubAPI"
+    r = github.repos.traffic.list_clones(username, repo, json=payload)
+    assert r.status_code == 200
+    print(r.json()['count'])
 ---------------------------------------------------------------------------
 16.120 关键字层的封装
 1. 什么是关键字? 关键字有什么特点? 关键字和测试用例有什么关系?
@@ -471,12 +666,47 @@ class RestClient:
         elif token:
             self.session.headers['Authorization'] = "token {}".format(token)
 
-    def get(url, **kwargs):
+    def get(self, url, **kwargs):
         return self.request(url, "get", **kwargs)
 
+    def post(self, url, data=None, json=None, **kwargs):
+        return self.request(url, "post", data, json, **kwargs)
 
+    def head(self, url, **kwargs):
+        return self.request(url, "head", **kwargs)
 
+    def options(self, url, **kwargs):
+        return self.request(url, "options", **kwargs)
 
+    def put(self, url, data=None, **kwargs):
+        return self.request(url, "put", data, **kwargs)
+
+    def patch(self, url, data=None, **kwargs):
+        return self.request(url, "patch", data, json, **kwargs)
+
+    def delete(self, url, **kwargs):
+        return self.request(url, "delete", **kwargs)
+
+    def request(self, url, method_name, data=None, json=None, **kwargs):
+        url = ''.join([self.api_root_url, url])
+        if method_name == "get":
+            return process(self.session.get(url, **kwargs))
+        if method_name == "post":
+            return process(self.session.post(url, data, json, **kwargs))
+        if method_name == "head":
+            return process(self.session.head(url, **kwargs))
+        if method_name == "options":
+            return process(self.session.options(url, **kwargs))
+        if method_name == "put":
+            return process(self.session.put(url, data, **kwargs))
+        if method_name == "patch":
+            if json:
+                data = json_parser.dumps(json)
+            return process(self.session.patch(url, data, **kwargs))
+        if method_name == "delete":
+            return process(self.session.delete(url, **kwargs))
+
+        
 def process(raw_response):
     response = Response()
     response.raw = raw_response
@@ -494,12 +724,16 @@ class Response:
         self.content = None
         self.status_code = None
 
-
 2. 用改造后的 restclient 重新书写测试用例, 测试用例为 test_list_all_public_repos
+def test_list_all_public_repos(env):
+    r = env.github.repos.list_all_public_repos()
+    assert r.status_code == 200, "status_code should be 200 but actully={}".format(str(r.status_code))
+    assert r.content[0].get('id') == 1
+    assert r.content[0].get('name') == 'grit'
+    assert r.content[0].get('private') == False
 
 3. 做预处理可以完全避免因exception而退出测试吗, 为什么?
-
-
+做预处理并不能完全避免因为 exception 而退出测试, 如果要完全避免, 需要实现软断言
 ---------------------------------------------------------------------------
 16.180 针对场景的测试
 1. 如何验证多个接口协同工作是否正常?
