@@ -10,7 +10,7 @@
 
 * 常见代理工具:Charles、Fiddler、Burpsuite
 * Fiddler:对Windows支持很全面,但对Mac支持不是很友好
-* Burpsuite:for hacker 偏黑客级别的代理 工具,适合安全测试
+* Burpsuite:for hacker 偏黑客级别的代理工具,适合安全测试
 * Charles:友好的支持Mac和Windows版本,测试工程师常用
 
 ## charles安装及证书配置
@@ -22,7 +22,11 @@
 ### Charles 证书安装
 
 * 为什么要安装证书
+
+  https 是加密的请求, 你的客户端向Charles发送https的请求, 再通过加密协议发送给服务端, 服务端接收请求后给Charles返回响应, Charles再做一个解密.
+
 * 由于现在接口都是https协议,如果不安装https证书,抓包会出现unknown
+
 * 安装方式:
   * PC/Mac:Help->SSL Proxying->Install Charles Root Certificate
   * Android/iOS: Help->SSL Proxying->Install Charles Root Certificate on a mobile device or remote browser
