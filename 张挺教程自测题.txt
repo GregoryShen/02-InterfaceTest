@@ -37,14 +37,16 @@
 
 ---------------------------------------------------------------------------
 14.80 requests 中的响应
-1. 
-
+1. 在调试器中 r = {Response} 表示什么
+2. r.content, r.cookies, r.status_code, r.reason, r.request, r.text, r.url 含义
+3. 使用 requests 库自带的 json 解析器解析响应（get方法请求https://api.github.com/events)
+4. 如果使用自带的 json 解析器解析响应解析失败怎么办？
 ---------------------------------------------------------------------------
 14.90 requests 中的会话
-1. cookie和session的定义？以及他们的区别
-2. 如果响应中含有cookies，如何读取？给出示例代码
-3. 如果想在请求中添加cookies，如何操作？ url=http://httpbin.org/cookies
-4. 如何把RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
+1. cookie 和 session 的定义？以及他们的区别
+2. 如果响应中含有 cookies，如何读取？给出示例代码
+3. 如果想在请求中添加 cookies，如何操作？ url=http://httpbin.org/cookies
+4. 如何把 RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
 5. 如何在requests中使用会话？给出示例代码？ 也就是如何证明session的功能？
    就是可以在不同请求中确认服务器记住了我们的cookie
    设置cookie：http://httpbin.org/cookies/set/{name}/{value} (GET 请求)

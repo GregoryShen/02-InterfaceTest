@@ -107,8 +107,26 @@ http 协议里是按照协议规定好的格式来封装报文和解报文的
 
 ---------------------------------------------------------------------------
 14.80 requests 中的响应
-1. 
+1. 在调试器中 r = {Response} 表示什么
+表示 r 是一个 Response 类的实例， Response 类是 requests 库里定义来表示响应的类
 
+2. r.content, r.cookies, r.status_code, r.reason, r.request, r.text, r.url 含义
+r.content：响应主体内容，以字节 bytes 类型保存，我们把它转换成字典或字符串之后就是
+我们想要的响应数据
+r.cookies：保存了这个响应带的 cookie
+r.status_code：HTTP 响应里的状态码，常用于写断言
+r.reason：短语，如果响应失败，会告诉失败原因
+r.request：这个响应所对应的请求
+r.text：响应中数据转换成的问呢
+r.url：这个响应来自于哪个URL
+
+3. 使用 requests 库自带的 json 解析器解析响应（get方法请求https://api.github.com/events)
+import requsts
+r = requests.get("https://api.github.com/events")
+print(r.json())
+
+4. 如果使用自带的 json 解析器解析响应解析失败怎么办？
+如果失败，可以通过观察 r.content 和 r.text 来分析错误原因
 ---------------------------------------------------------------------------
 14.90 requests 中的会话
 1. cookie和session的定义？以及他们的区别
@@ -123,13 +141,16 @@ session 是存储在服务端, 在服务端的文件或数据库中都可以
 
 2. 如果响应中含有cookies，如何读取？给出示例代码 url="http://example.com/some/cookie/setting/url", cookie的name是example_cookie_name
 
-3. 如果想在请求中添加cookies，如何操作？ url=http://httpbin.org/cookies
+3. 如果想在请求中添加 cookies，如何操作？ url=http://httpbin.org/cookies
+
 
 4. 如何把RequestCookieJar 添加到请求中？ 给出示例代码 url=http://httpbin.org/cookies
 
 
 5. 如何在requests中使用会话？给出示例代码？ 也就是如何证明session的功能？
    就是可以在不同请求中确认服务器记住了我们的cookie
+
+
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
 ---------------------------------------------------------------------------
