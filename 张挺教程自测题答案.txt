@@ -608,7 +608,9 @@ class Env:
 这个类是用来切换环境的。
 
 2. 在 conftest.py 中定义 env 的 fixture
-from environment import Env
+import pytest
+import os
+from libraries.environment import Env
 
 @pytest.fixture(scope="module", autouse=True)
 def env():
