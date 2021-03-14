@@ -239,8 +239,10 @@ TUGithubAPI 是把 Github 提供的 HTTP 接口封装成 Python 类库
 TUGithubAPITest是把测试用例集合到一起
 
 2. 解释关键字和脚本的概念
-关键字就是把待测软件提供的接口封装成python方法，这些python方法就是关键字
-调用关键字组成测试用例，就是测试脚本
+关键字就是把待测软件提供的接口封装成python方法，这些python方法就是关键字,
+更抽象地定义: 把待测软件提供的功能封装成软件方法,以供脚本调用
+调用关键字组成一个又一个的测试用例，就是测试脚本,
+更抽象的定义: 按某种业务逻辑调用关键字, 以实现自动化测试
 ---------------------------------------------------------------------------
 16.30 项目开始前的准备
 1. 解释master、release、integration、dev、hotfix、teach分支的含义
@@ -654,13 +656,13 @@ class Env:
 
 2. 新建 data.ini 文件并修改 fixture env
 [test_env]
-api_root_url: https://api.github.com
+api_root_url=https://api.github.com
 
 [dev_env]
-api_root_url: https://api.github.com
+api_root_url=https://api.github.com
 
 [release_env]
-api_root_url: https://api.github.com
+api_root_url=https://api.github.com
 
 import pytest
 import os
