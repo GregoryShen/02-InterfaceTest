@@ -180,6 +180,8 @@ https://docs.github.com/en/rest/reference/repos#list-public-repositories
 相关接口:
 https://docs.github.com/en/rest/reference/git#get-a-reference
 https://docs.github.com/en/rest/reference/git#create-a-reference
+(提示，需要结合两个接口的入参和出参考虑，封不封装倒无所谓，根据两个接口的入参出参
+来设计关键字的入参，以及需要从第一个接口中获得什么，再传给第二个接口)
 3. 在 scenario_test 下新建测试用例, 要求是: 利用在2中新建的关键字来在当前用户下
 创建一个名称随机的新代码仓库, 然后在这个代码仓库下创建一个名为 test 的分支.
 ---------------------------------------------------------------------------
