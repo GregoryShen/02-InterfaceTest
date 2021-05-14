@@ -68,7 +68,122 @@ print(r.status_code)  # 200
 
 ## [17-响应时间与超时(timeout)](https://mp.weixin.qq.com/s/7HzCRTzLiCMESHHiw58RtA)
 
+### 前言
 
+requests 发请求时，接口的响应时间也是我们需要关注的一个点，如果响应时间太长也是不合理的。如果服务端没有及时响应，也不能一直等着，可以设置一个 timeout 超时的时间。
+
+关于 requests 请求的响应时间，很多资料写的是 `r.elapsed.microseconds`获取的，这样写是不对的。
+
+### elapsed 官方文档
+
+1. `elapsed`官方文档地址：https://docs.python-requests.org/en/latest/api/#requests.Response
+
+	class requests.Response
+
+	​		The Response object, which contains a server’s response to an HTTP request.
+
+	elapsed = None
+
+	​		The amount of time elapsed between sending the request and the arrival of the response (as a timedelta). This property specifically measures the time taken between sending the first byte of the request and finishing parsing the headers. It is therefore unaffected by consuming the response content or the value of the `stream` keyword argument.
+
+	简单翻译：计算的是从发送请求到服务端响应回来这段时间（也就是时间差），发送的第一个数据到收到最后一个数据之间，这个时长不受响应内容的影响。
+
+2. 用 help() 查看 elapsed 里面的方法
+
+	```python
+	>>> import requests
+	>>> r = requests.get("https://www.baidu.com")
+	>>> help(r.elapsed)
+	Help on timedelta object:
+	class timedelta(builtins.object)
+	 |  Difference between two datetime values.
+	 |  
+	 |  timedelta(days=0, seconds=0, microseconds=0, milliseconds=0, minutes=0, hours=0, weeks=0)
+	 |  
+	 |  All arguments are optional and default to 0.
+	 |  Arguments may be integers or floats, and may be positive or negative.
+	 |  
+	 |  Methods defined here:
+	 |  
+	 |  __abs__(self, /)
+	 |      abs(self)
+	...
+	 |  total_seconds(...)
+	 |      Total seconds in the duration.	# 总时长，单位秒
+	 |  
+	 |  ----------------------------------------------------------------------
+	 |  Static methods defined here:
+	 |  
+	 |  __new__(*args, **kwargs) from builtins.type
+	 |      Create and return a new object.  See help(type) for accurate signature.
+	 |  
+	 |  ----------------------------------------------------------------------
+	 |  Data descriptors defined here:
+	 |  
+	 |  days		# 以天为单位
+	 |      Number of days.
+	 |  
+	 |  microseconds	# 获取微秒部分，大于0小于1秒
+	 |      Number of microseconds (>= 0 and less than 1 second).
+	 |  
+	 |  seconds		# 大于0小于1天
+	 |      Number of seconds (>= 0 and less than 1 day).
+	 |  
+	 |  ----------------------------------------------------------------------
+	 |  Data and other attributes defined here:
+	 |  
+	 |  max = datetime.timedelta(days=999999999, seconds=86399, microseconds=9...		# 最大时间
+	 |  
+	 |  min = datetime.timedelta(days=-999999999)		# 最小时间
+	 |  
+	 |  resolution = datetime.timedelta(microseconds=1)		# 最小时间单位
+	```
+
+### 获取响应时间
+
+1. 获取 elapsed 不同的返回值
+
+	```python
+	>>> import requests
+	>>> r = requests.get("https://www.baidu.com")
+	>>> print(r.elapsed)
+	0:00:00.504449
+	>>> print(r.elapsed.total_seconds())
+	0.504449
+	>>> print(r.elapsed.microseconds)
+	504449
+	>>> print(r.elapsed.seconds)
+	0
+	>>> print(r.elapsed.days)
+	0
+	>>> print(r.elapsed.max)
+	999999999 days, 23:59:59.999999
+	>>> print(r.elapsed.min)
+	-999999999 days, 0:00:00
+	>>> print(r.elapsed.resolution)
+	0:00:00.000001
+	```
+
+2. 网上很多资料写的是用 microseconds 获取响应时间，再除以1000*1000 得到时间为秒的单位，当请求小于 1s 时发现不出什么问题，如果时间超过 1s，问题就来了（很显然，大于1s的时候，只截取了后面的小数部分）
+
+3. 所以获取响应时间的正确姿势应该是：`r.elapsed.total_seconds()`，单位是秒。
+
+### timeout 超时
+
+1. 如果一个请求响应时间比较长，不能一直等着，可以设置一个超时时间，让它抛出异常
+
+2. 如下请求，设置超时为0.5s，那么就会抛出异常：requests.exceptions.ConnectTimeout: HTTPConnectionPool
+
+	```python
+	>>> import requests
+	>>> r = requests.get("http://cn.python-requests.org/zh_CN/latest/", timeout=1)
+	>>> print(r.elapsed)
+	xxxx
+	>>> print(r.elapsed.total_seconds())
+	xxx
+	>>> print(r.elapsed.microseconds)
+	xxx
+	```
 
 
 
