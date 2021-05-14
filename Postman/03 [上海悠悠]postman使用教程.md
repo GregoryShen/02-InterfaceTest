@@ -6,7 +6,30 @@
 
 ## [2-发 post 请求(json和urlencoded)](https://mp.weixin.qq.com/s/oqyKqi3PDp3bN--jh_iESQ)
 
+### 前言
 
+使用 postman 发送 http 协议 post 请求, 两种请求类型 `application/json` 和 `application/x-www-form-urlencoded`
+
+### application/json
+
+请求参数是 json 格式, 这种是最常见的, 以登录接口为例
+
+接口名称: 用户账户登录
+
+接口地址: /api/v1/login
+
+请求方式: POST
+
+请求参数:
+
+|  字段名  |  变量名  | 必填 |  类型  | 示例值 |   描述   |
+| :------: | :------: | :--: | :----: | :----: | :------: |
+|  用户名  | username |  是  | String |  test  | 用户账户 |
+| 用户密码 | password |  是  | String | 123456 |   密码   |
+
+
+
+### application/x-www-form-urlencoded
 
 
 
