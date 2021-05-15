@@ -48,9 +48,64 @@ print(r.status_code)  # 200
 
 ## [10-token登录](https://mp.weixin.qq.com/s/UtCp8rmdznHvf6VWjw0jdQ)
 
+### 前言
 
+有些登录不是用 cookie 来验证的，是用 token 参数来判断是否登录。token 传参有两种一种是放在请求头里，本质上是跟 cookie 是一样的，只是换个单词而已；另外一种是在 URL 请求参数里，这种更直观
 
+### 登录返回 token
 
+![](http://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyDVMS1TXjHLicFNrFnp0NE86xOmfuCMWLvmsBhGloH0nMSkFnuOe5RarVoFyAMODKq3QuibG8S0DExw/640)
+
+如上图这个登录，无 cookies，但是登录成功后有返回 token
+
+### 请求头带 token
+
+![](http://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyDVMS1TXjHLicFNrFnp0NE86KSYhb88bCBVHjvIhpW0DckCBWibuPnK5Sp2KTTB2PA9aJdjKJWbGVzA/640)
+
+登录成功后继续操作其他页面，发现 post 请求的请求头都会带 token 参数。这种请求其实比 cookie 更简单，直接把登录后的 token 放到头部就行。
+
+### token 关联
+
+1. 用脚本实现登录，获取 token 参数，获取后传参到请求头就可以了
+2. 如果登录有验证码，前面的脚本登录步骤就省略了，自己手动登录后获取 token
+
+```python
+import requests
+
+header = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
+    "Accept": "*/*",
+    "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3",
+    "Accept-Encoding": "gzip, deflate",
+    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+    "X-Requested-With": "XMLHttpRequest",
+    "Content-Length": "423",
+    "Connection": "keep-alive"
+}
+
+body = {"key1": "value1", "key2": "value2"} # 这里账号密码就是抓包的数据
+s = requests.session()
+login_url = "http://xxx.login"
+login_ret = s.post(login_url, headers=header, data=body)
+# 这里 token 在返回的 json 里，可以直接提取
+token = login_ret.json()["token"]
+# 这是登录后发的一个 post 请求
+post_url = "http://xxx"
+# 添加 token 到请求头
+header["token"] = token
+# 如果这个 post 请求的头部的其他参数变了，也可以直接更新
+header["Content-Length"] = '9'
+body1 = {
+    "key": "value"
+}
+post_ret = s.post(post_url, headers=header, data=body1)
+print(post_ret.content)
+```
+
+### 其他 token
+
+1. 返回 token 的值，有的藏在 cookie 里，有的直接在返回的 json 里，也有的在返回的 xml 页面或者 html 里，形式各种各样，自己去找
+2. 传 token 的方式也有几种，有的传在头部，有的在 URL 里
 
 ## [15-multipart/form-data表单提交](https://mp.weixin.qq.com/s/8-E6g4vmzuGe5-yrbE5axQ)
 
