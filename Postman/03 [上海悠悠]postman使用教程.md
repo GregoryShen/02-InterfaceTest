@@ -379,7 +379,7 @@ pm.test("Status test", function () {
 
 校验 `Content-Type`在返回头部
 
-```javascript
+​```javascript
 pm.test("Content-Type header is present", () =>{
     pm.response.to.have.header("Content-Type");
 });
@@ -534,13 +534,135 @@ pm.globals.set("variable_key", "variable_value");	// 设置环境变量
 
 ## [12-预处理(pre-request) 发送请求](https://mp.weixin.qq.com/s/QctsaH4xyQMO6V6x93g4xQ)
 
+### 前言
+
+可以使用`pm.sendRequest`方法从“pre-request”或“Tests”脚本异步发送请求。
+
+如果您要执行计算或同时发送多个请求，而不必等待每个请求完成，则可以在后台执行逻辑。
+
+### pre-request 发送请求
+
+点`Send a request`快速生成一个请求示例
+
+```javascript
+pm.sendRequest("https://postman-echo.com/get", function (err, response) {
+    console.log(response.json());
+});
+```
+
+* `pm.sendRequest`是发送一个请求
+* function 中的 err 表示请求返回的错误信息
+* response 表示响应内容
+* `console.log()`是控制台输出日志
+
+发送一个 post 请求示例
+
+```javascript
+// Example with a full-fledged request
+const postRequest = {
+    url: 'https://postman-echo.com/post',
+    method: 'POST',
+    header: {
+        'Content-Type': 'application/json',
+        'X-Foo': 'bar'
+    },
+    body: {
+        mode: 'raw',
+        raw: JSON.stringify({key: 'this is json'})
+    }
+};
 
 
+pm.sendRequest(postRequest, (error, response) => {
+    console.log(error ? error : response.json());
+});
+```
 
+参数说明：
+
+* `const`是 js 中用来定义变量的关键字，由 const 定义的变量不可修改，而且必须初始化
+* `url`表示要发送的请求的 url 地址
+* `method`指定请求方法 GET/POST
+* `header`定制请求头信息，传 json 格式的数据的话，需定义请求头为`Content-Type:application/json`
+* `body`表示 post 请求 body 参数
+* `JSON.stringify()`方法是将一个 JavaScript 值（对象或数组）转换为一个 JSON 字符串
+
+### 更多示例
+
+以下是官方文档给的示例：https://learning.postman.com/docs/writing-scripts/script-references/postman-sandbox-api-reference/
+
+```javascript
+// Example with a plain string URL
+pm.sendRequest('https://postman-echo.com/get', (error, response) => {
+    if (error) {
+        console.log(error);
+    } else {
+        console.log(response);
+    }
+});
+
+// Example containing a test
+pm.sendRequest('https://postman-echo.com/get', (error, response) => {
+    if (error) {
+        console.log(error);
+    }
+    
+    pm.test('response should be okey to process', () => {
+        pm.expect(error).to.equal(null);
+        pm.expect(response).to.have.property('code', 200);
+        pm.expect(response).to.have.property('status', 'OK');
+    });
+});
+```
+
+### 请求定义和响应结构参考文档
+
+[Request 请求参数参考文档](http://www.postmanlabs.com/postman-collection/Request.html#~definition)
+
+[Response 返回参考文档](http://www.postmanlabs.com/postman-collection/Response.html)
 
 ## [13-cookies 管理器](https://mp.weixin.qq.com/s/bCATezHFdZZYRrM7b1zEdQ)
 
+### 前言
 
+提供了一个 MANAGE COOKIES 模式，使得可以编辑每个域关联的 cookie。模拟 Web 网站登录的时候，一般都会有 cookies。
+
+### Cookies 关联
+
+以登录禅道网站为例，没访问之前点开 Cookies 管理器，这时候 MANAGE COOKIES 是空的。
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u86E9g7vM41t2TiaNKcxdd6456kmtUkhibl3lXumlOTbVn28AQtvoD5My6A/640)
+
+发一个 get 请求，访问登录首页
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u864Z8MfWqAzoB9oksjnmqe9ZLFjNJX0lQicgXnibgt6HZqLib0bvaWF3xZg/640)
+
+此时服务端返回了4个 cookies
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u86KD0iawO4o4Bq6rsRLz4m0t8kD8CpeMyRLA8bSuhBIg9EXibrTQvbe7pg/640)
+
+服务端返回的 cookies 会自动缓存，点开 Cookies 管理器
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u86tHVlmwdaKPX7frR0DyMGeG6AHAoZgyUccnOwFIWibIIZ1dfKULOGoCQ/640)
+
+此页面可以添加/编辑/删除 cookies
+
+### 登录网页
+
+发送 post 请求登录网页，请求头部参数
+
+Content-Type:application/x-www-form-urlencoded
+X-Requested-With:XMLHttpRequest
+
+登录成功，接口返回：`{"result":"success","locate":" \/zentao\/"}`
+
+查看 console 会发现 post 请求会自动带上前面缓存的 cookies
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u86fpma7zw0U1dcM6GMglA01LZYeQf5KDZMrHqx508tsd7qSGUED9FjWg/640)
+
+点 code 按钮查看 HTTP 协议也可以看到：
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyCg7SoAOguevnImbWdw8u86VbLf4JSE2ddFQdCOJJ9Of6xp0Xm55ic164IoAKHOSjEIS5Nv2ex5Y8w/640)
 
 
 
@@ -552,7 +674,93 @@ pm.globals.set("variable_key", "variable_value");	// 设置环境变量
 
 ## [15-构建请求工作流（setNextRequest）](https://mp.weixin.qq.com/s/Y246HD_Wg7pARqqnCdCQIg)
 
+### 前言
 
+postman 在收集运行时，所有请求都豆浆按照在 Postman 中看到的顺序运行。因此，首先按照文件夹的顺序执行所有请求，然后再执行集合根目录中的所有请求。
+
+可以用内置函数来覆盖此行为`postman.setNextRequest()`，顾名思义，此功能允许您指定下一个运行的请求。
+
+### 工作流
+
+假设有4个接口：注册，test_demo，登录，个人信息，写到一个 Collections
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476tonkn1MLKCsMBFQX0MunlWicCurxAeIiboYbJLSTG57B1jztvSj3kNy6Q/640)
+
+接下来要改变执行顺序：注册-登录-个人信息-test_demo
+
+### setNextRequest
+
+设置下一个要执行的请求：
+
+```javascript
+postman.setNextRequest("request_name");
+```
+
+在 Tests 中使用示例
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476tuic5RzEBxXqQM6RObmVhhhCIkbjMD4HC4mAfjg3Mows39NHKj1tUruA/640)
+
+### 注册后执行登录
+
+“注册”接口执行后，在 Tests 中写执行第三个请求“登录”
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476tCttJfAmMu9PxXUcD0IzG3B6NGiaVjxtbRLOVgoCguZLQzwBMDqAGVyA/640)
+
+工作流有4个接口，指定了注册后执行登录
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476tJRwcMvfwwN06I6TA81SMT0e3JN0ibf8bibJ8xD0Eaibl9c5x2ytNsJLzg/640)
+
+运行结果是：注册-登录-个人信息，此时会跳过`test_demo`接口
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476t7GnHbZh8OQG0vjF5YEcP5oMia4qoLEbR03pE6Uyb9yCz6GLIfSUuf7Q/640)
+
+也就是说当没指定顺序的时候，会按收集器写的顺序执行，如果指定了下一个请求，会执行下个请求（然后遵循前面规则按顺序往下执行）
+
+### 循环当前请求
+
+`setNextRequest()`执行当前接口名称，导致 Postman 连续运行当前请求。如果我要重复执行100次注册，可以通过 for 循环实现
+
+```javascript
+// 重复执行 100 次注册
+for (i = 0;i <= 100;i++) {
+    console.log(i);
+    postman.setNextRequest("注册");
+}
+```
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476tiaYC1eXjg8wd05wibyxtSasuAETSnQdFIZ17JGOIZDViclRWhKeiamjicYA/640)
+
+在 Collection Runner 运行的时候会重复执行100次登录接口
+
+### 停止执行工作流程
+
+```javascript
+postman.setNextRequest(null);
+```
+
+关于 `postman.setNextRequest()`以下有几个要点：
+
+* 指定后续请求的名称或 ID，收集运行期将负责其余的工作。
+* 它可以在预请求或测试脚本中使用。如果有多个分配，则最后一个设置值优先
+* 如果`postman.setNextRequest()`请求中不存在，则收集运行器默认为线程执行并移至下一个请求
+
+使用此工作流程时，请记住以下两个事实：
+
+* postman.setNextRequest() 总是在当前请求的末尾执行。这意味着，如果您将此功能放在预请求或测试脚本中任何其他代码块之前，则这些代码块仍将执行。
+* postman.setNextRequest() 具有作用域，这是收集运行的来源。如果运行集合，则可以跳转到集合中的任何请求（甚至使用相同语法的文件夹中的请求）。
+
+但是，如果运行文件夹，则范围postman.setNextRequest()仅限于该文件夹。
+
+因此，您可以跳到该文件夹中的任何请求，但不能跳到该文件夹之外的任何请求。
+它包括其他文件夹中的请求，以及集合中的根级别请求
+
+### 手动拖动顺序
+
+使用 postman.setNextRequest() 设置工作流实际上不太直观，我们习惯上按看到的顺序执行，在 Collection 区域也可以手动拖动改变顺序：
+
+![](https://mmbiz.qpic.cn/mmbiz_png/qia7WF9xhFyAj9g40pex3aXAffGTP476t08VBNDtO4jicPZXssez3ftTBmUNUY2KcvYlY83eTVt92UVia2uOD67Ng/640)
+
+官方文档参考：https://learning.postman.com/docs/running-collections/building-workflows/
 
 
 
