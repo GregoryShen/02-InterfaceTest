@@ -449,15 +449,90 @@ print(r.text)
 
 ### 前言
 
-
+面试最喜欢考那些你不常用的功能，因为你用不到这些功能，所以会被你忽略。
 
 ### 代理功能
 
+```python
+import requests
 
+proxies = {
+    "http": "http://10.10.1.10:3128",
+    "https": "http://10.10.1.10:1080"
+}
+
+requests.get("http://example.org", proxies=proxies)
+```
+
+也可以通过环境变量`HTTP_PROXY`和`HTTPS_PROXY`来配置代理。
+
+```shell
+$ export HTTP_PROXY="http://10.10.1.10:3128"
+$ export HTTPS_PROXY="http://10.10.1.10:1080"
+
+$ python
+>>> import requests
+>>> requests.get("http://example.org")
+```
+
+若你的代理需要使用 HTTP Basic Auth，可以使用 `http://user:password@host/`语法：
+
+```python
+proxies = {
+    "http": "http://user:pass@10.10.1.10:3128",
+}
+```
+
+要为某个特定的连接方式或主机设置代理，使用`scheme://hostname`作为 key，它会针对指定的主机和连接方式进行匹配。
+
+```python
+proxies = {'http://10.20.1.128': 'http://10.10.1.10:5323'}
+```
+
+注意：代理 URL 必须包含连接方式。
 
 ### 关于 https 证书
 
 https 请求需要用到 SSL 证书,平时都是让大家简单省事一点, 设置 `verify=False`来忽略 SSL 证书的校验.
+
+Requests 可以为 HTTPS 请求验证 SSL 证书，就像 Web 浏览器一样。SSL 验证默认是开启的，如果证书验证失败，Requests 会抛出 SSLError：
+
+在该域名上我没有设置 SSL，所以失败了。但 Github 设置了 SSL：
+
+可以为`verify`传入 CA_BUNDLE 文件的路径，或者包含任何可信任 CA 证书文件的文件夹路径：
+
+```python
+>>> requests.get('https://github.com', verify='/path/to/certfile')
+```
+
+或者将其保持在会话中：
+
+```python
+s = requests.Session()
+s.verify = '/path/to/certfile'
+```
+
+注解：如果 verify 设为文件夹路径，文件夹必须通过 OpenSSL 提供的 c_rehash 工具处理
+
+还可以通过 REQUESTS_CA_BUNDLE 环境变量定义可信任 CA 列表。
+
+如果你将`verify`设置为 False, Requests 也能忽略对 SSL 证书的验证。
+
+```python
+>>> requests.get('https://kennethreitz.org', verify=False)
+<Response [200]>
+```
+
+默认情况下，`verify`是设置为 True 的，选项`verify`仅应用于主机证书。
+
+客户端证书：
+
+你也可以指定一个本地证书用作客户端证书，可以是单个文件（包含密钥和证书）或一两个包含两个文件路径的元祖：
+
+```python
+>>> requests.get('https://kennethreitz.org', cert=('/path/client.cert', 'path/client'))
+<Response [200]>
+```
 
 
 
